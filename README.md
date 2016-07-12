@@ -6,13 +6,15 @@ Version: 0.0.1 - not really ready
 
 ## What is minetest
 
-[Minetest](https://minetest.org) is an open-source competitor to Minecraft. WHat it lacks in polish it makes up in ease of modding and extensibility.
+[Minetest](https://minetest.org) is an open-source competitor to Minecraft. What it lacks in polish it makes up in ease of modding and extensibility.
 
 Minetest modding is done in lightweight Lua scripting, as opposed to heaview Java programming. Minetest mods are often distributed as git repositories - as such, syncing a git repository to your mods directory is often the single step to installing a mod.
 
 ## Goals of project
 
-Make it easy to set up a new minetest server on a Ubuntu instance
+Make it easy to set up a new minetest server on a Ubuntu instance, and to find and add mods to the server.
+
+Make a place where it is easy to share mod sets, or lookup mods by name and description - either by way of a git-manged file, or an actual server-client model repo system
 
 Currently there are only two items of note: a single script that installs the latest minetest on your Ubuintu server system, and a script for installing collections of mods
 
