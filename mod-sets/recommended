@@ -1,0 +1,31 @@
+#MTMODLIST
+
+# A list of recommended mods for a "basic" server but still with a challenge.
+
+# GITURL [internal_path]
+https://github.com/minetest-mods/biome_lib
+https://github.com/minetest-mods/moretrees
+https://github.com/minetest-mods/moreores
+https://github.com/minetest-mods/stamina
+https://github.com/Sokomine/locks
+https://github.com/Sokomine/travelnet
+https://github.com/stujones11/minetest-3d_armor 3d_armor 3d_armor_stand shields
+
+https://github.com/cornernote/minetest-inventory_plus
+https://github.com/dmonty2/minetest-u_skinsdb
+
+# ===========
+# Protection mod
+https://github.com/tenplus1/protector
+
+# Some better farming
+https://github.com/tenplus1/farming
+
+# Animate heads
+https://github.com/minetest-mods/playeranim
+
+# Some hard mobs
+https://github.com/maikerumine/esmobs
+
+# Some really hard mobs
+https://github.com/NPXcoot/nssm
