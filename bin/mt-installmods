@@ -1,6 +1,6 @@
 #!/bin/bash
 
-mtdir=/usr/share/games/minetest
+mtdir=
 MODLIST=
 
 function warne {
@@ -21,6 +21,8 @@ function getvars {
 		case "$ARG" in
 			-m)
 				MODLIST=$1; shift ;;
+			-d)
+				mtdir=$1; shift ;;
 			*)
 				warne Unknown argument "[ $ARG ]"
 				exit 1
@@ -34,13 +36,35 @@ function abspath {
 	python -c "import os ; print os.path.abspath('$newvar')"
 }
 
+function printhelp {
+cat <<EOHELP
+Script to install mods from a mods list
+
+	$0 -m MODLIST [-d MODSDIR]
+
+By default installs to ~/.minetest/mods ; if run as root installs to /usr/share/games/minetest
+
+Specify the mod directory explicitly using the '-d' option
+
+EOHELP
+}
+
 
 getvars "$@"
 
-if [[ "$UID" != 0 ]]; then
-	mtdir="$HOME/.minetest"
-	warne You are not root - installing to "$mtdir"
-	uconfirm "Continue?" || exit 2
+if [[ -z "$MODLIST" ]]; then
+	warne No mod list file specified
+	exit 1
+fi
+
+if [[ -z "$mtdir" ]]; then
+	if [[ "$UID" != 0 ]]; then
+		mtdir="$HOME/.minetest"
+		warne You are not root - installing to "$mtdir"
+		uconfirm "Continue?" || exit 2
+	else
+		mtdir=/usr/share/games/minetest
+	fi
 fi
 
 mkdir -p $mtdir/pkgs
