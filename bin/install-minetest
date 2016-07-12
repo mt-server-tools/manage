@@ -132,8 +132,7 @@ function installer {
 }
 
 function installfiles {
-	apt-get update
-	apt-get install minetest-server minetest-mod-mobf minetest-data git
+	apt-get update && apt-get install minetest-server minetest-mod-mobf minetest-data git
 }
 # ==================================
 
