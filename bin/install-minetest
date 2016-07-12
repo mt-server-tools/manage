@@ -1,0 +1,140 @@
+#!/bin/bash
+
+### Colour defs Usage:api
+# supporting file for other files in `common`
+### /doc
+
+CDEF="[0m"
+CRED="[31m"
+CGRN="[32m"
+CYEL="[33m"
+CBLU="[34m"
+CBRED="[1;31m"
+CBGRN="[1;32m"
+CBYEL="[1;33m"
+CBBLU="[1;34m"
+
+MODE_DEBUG=no
+
+### debuge MESSAGE Usage:
+# print a blue debug message to stderr
+# only prints if MODE_DEBUG is set to "yes"
+###/doc
+
+function printhelp {
+cat <<EOHELP
+Installs the latest Minetest from the official PPAs for your Ubuntu system
+EOHELP
+}
+
+
+function debuge {
+	if [[ "$MODE_DEBUG" = yes ]]; then
+		echo -e "${CBBLU}DEBUG:$CBLU$@$CDEF" 1>&2
+	fi
+}
+
+### infoe MESSAGE Usage:
+# print a green informational message to stdout
+###/doc
+function infoe {
+	echo -e "$CGRN$@$CDEF"
+}
+
+### warne MESSAGE Usage:
+# print a yellow warning message to stderr
+###/doc
+function warne {
+	echo -e "${CBYEL}WARN:$CYEL $@$CDEF" 1>&2
+}
+
+### faile MESSAGE CODE Usage:
+# print a red failure message to stderr and exit with CODE
+# CODE must be a number
+# if no code is specified, error code 127 is used
+###/doc
+function faile {
+	local MSG=
+	local ARG=
+	local ERCODE=127
+	local numpat='^[0-9]+$'
+	while [[ -n "$@" ]]; do
+		ARG=$1 ; shift
+		if [[ -z "$@" ]] && [[ "$ARG" =~ $numpat ]]; then
+			ERCODE=$ARG
+		else
+			MSG="$MSG $ARG"
+		fi
+	done
+	echo "${CBRED}ERROR FAIL:$CRED$MSG$CDEF" 1>&2
+	exit "$ERCODE"
+}
+
+
+function mustberoot {
+	if [[ "$UID" != 0 ]]; then
+		faile "You must be root"
+	fi
+}
+
+function uconfirm {
+	read -p "$@ [y/N]"
+	local ans='^yes|YES|y|Y$'
+	[[ "$REPLY" =~ $ans ]]
+}
+
+function getarg {
+	# getarg SWITCH LIST
+	local SWITCH=$1 ; shift
+
+	while [[ -n "$@" ]]; do
+		local ARG="$1" ; shift
+		case "$ARG" in
+			$SWITCH)
+				echo "$1"
+				return 0
+				;;
+		esac
+	done
+	return 1
+}
+
+
+set -u
+
+
+
+ppafile="/etc/apt/sources.list.d/minetestppa.list"
+distro=$(cat /etc/lsb-release | grep DISTRIB_CODENAME | cut -d'=' -f2)
+
+function installer {
+
+	mustberoot
+
+	if [[ ! -f /usr/bin/apt-get ]]; then
+		faile 2 "No apt-get"
+	fi
+
+	# at this point, system could still be debian; would it still succeed?
+	echo "deb http://ppa.launchpad.net/minetestdevs/stable/ubuntu $distro main" >> "$ppafile"
+	echo "deb-src http://ppa.launchpad.net/minetestdevs/stable/ubuntu $distro main" >> "$ppafile"
+
+	if [[ -f "$(which minetest 2>/dev/null)" ]]; then
+		if uconfirm "A version of minetest already exists. Remove it?"; then
+			apt-get remove minetest*
+			installfiles
+		else
+			warne "Leaving minetest core files unchanged"
+		fi
+	else
+		installfiles
+	fi
+}
+
+function installfiles {
+	apt-get update
+	apt-get install minetest* git
+}
+# ==================================
+
+installer
