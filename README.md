@@ -32,3 +32,7 @@ Currently there are only two items of note: a single script that installs the la
 * firewall management assistant/notes
 * tools to change freequency of spwans etc
 * tools to change some behaviours (eg tree felling, etc)
+
+## Forum
+
+[Discussion thread](https://forum.minetest.net/viewtopic.php?f=3&t=15145)
