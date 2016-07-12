@@ -1,0 +1,88 @@
+# URL, internal path
+https://github.com/minetest-mods/biome_lib .
+https://github.com/minetest-mods/moretrees .
+https://github.com/minetest-mods/moreores .
+https://github.com/minetest-mods/homedecor_modpack .
+https://github.com/minetest-mods/stamina .
+https://github.com/minetest-mods/city_block .
+https://github.com/Sokomine/locks .
+https://github.com/Sokomine/travelnet .
+https://github.com/PilzAdam/nether .
+https://github.com/stujones11/minetest-3d_armor ./3d_armor ./3d_armor_stand shields
+
+https://github.com/minetest-technic/unified_inventory ./
+https://github.com/cornernote/minetest-inventory_plus ./
+https://github.com/dmonty2/minetest-u_skinsdb ./
+
+# ===========
+# Environments
+
+# -- Fun Caves
+# -- Adds a whole lot of terrain gen, mobs and stuff and whacky realms to discover.
+https://github.com/duane-r/fun_caves/ ./
+
+
+# ===========
+# Protection mod
+https://github.com/tenplus1/protector ./
+
+# ============
+# Edit All The Things
+#https://github.com/Uberi/MineTest-WorldEdit
+
+# ==============
+# Spawn random villages
+#https://github.com/Sokomine/mg ./
+#https://github.com/Sokomine/mg_villages ./
+#https://github.com/Sokomine/cottages ./
+
+# ====================
+# other stuff
+
+# Some better farming
+https://github.com/tenplus1/farming ./
+
+# Animate heads
+https://github.com/minetest-mods/playeranim ./
+
+# Some simple mobs that have fun behaviour
+#https://github.com/BlockMen/cme ./
+
+# Some hard mobs
+https://github.com/maikerumine/esmobs ./
+
+# Some really hard mobs
+#https://github.com/NPXcoot/nssm ./
+
+# Traders
+https://github.com/Sokomine/mobf_trader ./
+
+# =====================
+# rejected
+
+# Chakram
+#https://github.com/mahmutelmas06/chakram ./
+
+# Superceded by dmonty2's set
+#https://github.com/Zeg9/minetest-skins/
+
+# ===============
+# -- paths
+# -- good ones, but not visually compatible with villages
+# -- also quite resource intensive
+#https://github.com/paramat/pathv6alt
+
+# -- not good ones
+#https://github.com/CasimirKaPazi/paths
+
+# Not what I was looking for
+#https://github.com/minetest-mods/xdecor
+
+# These ship by default in 16.04 - but if you need them, uncomment them!
+#https://github.com/sapier/animals_modpack
+#https://github.com/PilzAdam/bones
+#https://github.com/PilzAdam/TNT
+#https://github.com/PilzAdam/farming
+
+# This is not worth it against tenplus1's farming mod
+#https://github.com/minetest-mods/crops
