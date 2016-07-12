@@ -24,7 +24,6 @@ Currently there are only two items of note: a single script that installs the la
 
 ## To Do
 
-* specify where to install the mods to explicitly
 * manage `world.mt` file
 * basic `minetest.conf` initial params setter (install prompt?)
 * a proper searchable database of mods with descriptions, URL to description, and URL to source/ZIP (not necessarily github)
