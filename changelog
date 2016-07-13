@@ -1,12 +1,13 @@
 Changelog
 
-NEXT RELEASE: 0.0.2
+NEXT RELEASE: 0.0.3
 
 PREVIOUS RELEASES:
 
 0.0.2
 
 * specify explicitly where to install mod files
+* Annotated guide on installing Minetest for server
 
 0.0.1 Not Really Ready
 

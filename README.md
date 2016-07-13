@@ -24,6 +24,8 @@ Currently there are only two items of note: a single script that installs the la
 * text-based repo database files
 	* fork this repo, add your own mod list file, and make a pull request to be included!
 
+I have also included an extensively annotated guide on configuring a Ubuntu server from scratch, in place until (and after) this project is complete.
+
 ## To Do
 
 * manage `world.mt` file
