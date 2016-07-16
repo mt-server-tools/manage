@@ -20,8 +20,9 @@ Currently there are only two items of note: a single script that installs the la
 
 ## Features
 
-* Install the latest minetest
-* Minetest configuration command
+* Install the latest minetest, configures swap (optional)
+* Mod-sets installation script
+* Minetest configuration command to one-line edit configuration options
 * Extensively annotated guide on configuring a Ubuntu server from scratch
 
 ## Mod Sets
@@ -38,13 +39,9 @@ Build your own mod spec, and make a pull request to be included!
 * manage `world.mt` file
 * a proper searchable database of mods with descriptions, URL to description, and URL to source/ZIP (not necessarily github)
 * firewall management assistant/notes
-* tools to change freequency of spwans etc
-* tools to change some behaviours (eg tree felling, etc)
-
-## X-Worlds
-
-A side project to allow sharing basic user data between servers, essentially allowing a carryable inventory.
-
-## Forum
-
-[Discussion thread](https://forum.minetest.net/viewtopic.php?f=3&t=15145)
+* Annotated guide for mod tweaking
+	* change freequency of mob spawns
+	* change tree felling behaviour
+	* making addendum craft recipes
+	* importing mod objects but not entire mods
+	* etc
