@@ -2,7 +2,7 @@
 
 Tools for managing a minetest server on Ubuntu
 
-Version: 0.0.3 - Not Yet Ready
+Version: 0.0.4
 
 ## What is minetest
 
