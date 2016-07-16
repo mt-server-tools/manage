@@ -186,6 +186,8 @@ function setconfval {
 	fi
 }
 
+readarg "$@"
+
 INTPAT='^[0-9]+$'
 BOOLPAT='^(true|false)$'
 setconfval port "$SERV_PORT" "$INTPAT"
