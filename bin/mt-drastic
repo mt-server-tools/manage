@@ -2,7 +2,7 @@
 
 set +u
 
-MT_DATA=/var/games/minetest-server/worlds
+MT_DATA=/var/games/minetest-server/.minetest/worlds
 
 # Some drastic things to do
 
