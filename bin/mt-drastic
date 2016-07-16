@@ -2,6 +2,8 @@
 
 set +u
 
+MT_DATA=/var/games/minetest-server/worlds
+
 # Some drastic things to do
 
 function printhelp {
@@ -25,8 +27,8 @@ ACTION=$1; shift
 case "$ACTION" in
 bigbang)
 	systemctl stop minetest-server
-	tar czf "/root/$(date "+%F-%T").tar.gz" -C /var/games/minetest/.minetest/worlds world
-	(cd /var/games/minetest-server/.minetest/worlds; rm -r world)
+	tar czf "/root/$(date "+%F-%T").tar.gz" -C "$MT_DATA" world
+	(cd "$MT_DATA"; rm -r world)
 	systemctl start minetest-server
 	;;
 esac
