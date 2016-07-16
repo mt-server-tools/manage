@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set +u
+
 # Some drastic things to do
 
 function printhelp {
@@ -20,7 +22,7 @@ fi
 
 ACTION=$1; shift
 
-case "$ACTTION" in
+case "$ACTION" in
 bigbang)
 	systemctl stop minetest-server
 	tar czf "/root/$(date "+%F-%T").tar.gz" -C /var/games/minetest/.minetest/worlds world
