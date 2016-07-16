@@ -11,6 +11,7 @@ bigbang
 	destroy the world and create it anew	
 
 EOHELP
+}
 
 if [[ -z "$*" ]]; then
 printhelp
@@ -25,7 +26,5 @@ bigbang)
 	tar czf "/root/$(date "+%F-%T").tar.gz" -C /var/games/minetest/.minetest/worlds world
 	(cd /var/games/minetest/.minetest/worlds; rm -r world)
 	systemctl start minetest-server
-	;;
-*)
 	;;
 esac
