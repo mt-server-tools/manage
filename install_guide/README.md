@@ -1,16 +1,10 @@
 # Installing a Minetest Server
 
-![logo](images/minetestlogo480.png)
-
 These are brief guided notes on installing a minetest server for Ubuntu 16.04
 
-I would like to be able to say that these instructions would also work for 14.04 and will work going forward, but Minetest is a bit more of a moving target at the moment that I expected. These instructions do not work on 14.04 with the PPA, and mods tend to depend on the latest version.
-
-At the time of writing, the version of Minetest server is 0.4.13
+At the time of writing, the version of Minetest server is 0.4.14
 
 These notes assume you have been able to install Ubuntu server 16.04 or obtain a VPS with it preinstalled, and know how to access the command line of the target server.
-
-I've tried to include some addendum notes about managing a Linux server, but it needs fleshing out. Watch this space.
 
 ## Installing the PPA and `minetest-server`
 
@@ -29,83 +23,32 @@ This will install the base required items.
 
 ## Adding mods
 
-We are going to create a file in which we list the various github repositories we want the mods from, then run it through a script that will download the repos and link them into your mods folder.
-
-There are several reasons to do this:
-
-* Some mod repos are not named such that we can simply clone them in
-* Some mod repos are not themselves mod directories - we need to copy a sub-directory in
-* Some mod repos might exist somewhere already and we do not want to create inconcsistencies
-	* We want to keep track of this too
-* With all manners of variations, it would be tedious to manage the different items
-
-Eventually this tutorial will be expanded to include adding games, textures etc
-
-Eventually I'll host a repo and a tool for adding mods easily.
-
-### The script
-
-Create a `./install-mods` script in your current folder (or wherever you wish), and write these contents to it:
-
-	#!/bin/bash
-
-	mtdir=/usr/share/games/minetest
-
-	mkdir -p $mtdir/pkgs
-	mkdir -p $mtdir/mods
-	modlist=$PWD/mod-list.txt
-
-	cd $mtdir/pkgs
-	cat $modlist |grep -P -v '^\s*#'| while read giturl; do
-		cd $mtdir/pkgs
-		git clone "$giturl"
-		modname="$(basename "$giturl")"
-		loadablename=$(echo "$modname"|tr ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz|sed -e 's/[^a-z0-9]+/_/g')
-		
-		if [[ -f "$modname/init.lua" ]] || [[ -f "$modname/modpack.txt" ]]; then
-			[[ -e "$mtdir/mods/$modname" ]] && return # need to add: other spaces to cehck against
-			ln -s "$PWD/$modname" "$mtdir/mods/$loadablename"
-		else
-			echo "Set up $modname manually (copy from $mtdir/pkgs/*/* to the $mtdir/mods/ directory)"
-		fi
-	done
+Use the `mt-installmods` tool to install mods from individual mod-sets.
 
 ### The mods file
 
-Now you can create a `mod-list.txt` in the current directory. Here is a list of mods I tried. Note that some are commented out, because they now ship byu default with the main `minetest` subgame. Re-comment them in if you intend on installing a different game.
+The initial line must contain the string `MTMODLIST` in it to identify a mod list file.
 
-
-	# URL, internal path
-	https://github.com/minetest-mods/biome_lib
-	https://github.com/maikerumine/esmobs
-	https://github.com/CasimirKaPazi/paths
-	https://github.com/Sokomine/cottages
-	https://github.com/minetest-mods/moretrees
-	https://github.com/minetest-mods/moreores
-	https://github.com/minetest-mods/homedecor_modpack
-	https://github.com/minetest-mods/xdecor
-	https://github.com/minetest-mods/crops
-	https://github.com/minetest-mods/stamina
-	https://github.com/minetest-mods/city_block
-	https://github.com/Sokomine/locks
+Each line specifies a URL to a Git repository (Github, Gitlab, HTTP server, etc) where the mod can be downloaded from. It can optionally be followed by the names of sub-directories if the repo itself is not the mod.
+	# Example: the travelnet mod
+	# The github repo itself is the mod folder, so we don't specify any mods after the URL
 	https://github.com/Sokomine/travelnet
-	https://github.com/PilzAdam/nether
-	https://github.com/Zeg9/minetest-protect
-	https://github.com/minetest-technic/unified_inventory
-	https://github.com/stujones11/minetest-3d_armor
-	# These ship by default in 16.04 - but if you need them, uncomment them!
-	#https://github.com/sapier/animals_modpack
-	#https://github.com/PilzAdam/bones
-	#https://github.com/PilzAdam/TNT
-	#https://github.com/PilzAdam/farming
+	
+	# Example: the 3d-armor mod
+	# The github repo actually houses multiple mods without specifying a modpack
+	# We specify in a space-separated list which ones we want to use
+	# these are the names of the mod directories directly under the github repo
+	https://github.com/stujones11/minetest-3d_armor 3d_armor 3d_armor_stand shields
 
-### Run the script
+Run the script, supplying a mod set file
 
-You can now run the script: `bash ./install-mods`
+	mt-installmods -m MODSETFILE
 
 ## Editing the server settings
 
-You need to configure the server at this point. Point your editor at `/etc/minetest/minetest.conf`
+You need to configure the server at this point. Point your editor at `/etc/minetest/minetest.conf`, or use the `mt-config` tool. See the tool help for more information.
+
+	mt-config --help
 
 There are a number of settings you can change here. Most are self-explanatory, and I encourage you to read them all to eek the best experience out of the server, though I should single out some:
 
@@ -121,8 +64,6 @@ There are a number of settings you can change here. Most are self-explanatory, a
 	* check the [Minetest wiki](http://wiki.minetest.net/Privileges) for details on privileges and see what else you may want to grant average users
 * `server_announce`
 	* don't activate this until you are ready to host publicly
-* `map-dir`
-	* this is commented out by default, but is useful to explicitly specify
 * `motd`
 	* this text is shown in the chat upon login. You can customize it to show latest news etc if you want, or provide a URL for newbies, etc.
 * `strict_protocol_version_checking`
@@ -185,8 +126,6 @@ Finally, restart the `minetest-server` service again
 
 ## Play!
 
-![client view](images/client_screen.png)
-
 You can now play on your minetest server! You will need the server IP (run `ifconfig` to find this)
 
 Run minetest and choose the "client" tab; in the address field type the IP address or FQDN if you are able to configure DNS.
@@ -200,8 +139,6 @@ Happy mining!
 # Troubleshooting
 
 Remember: after you modify any file, install any mod, change any setting, you need to `systemctl restart minetest-server`
-
-![tmux console](images/tmux.png)
 
 ## Useful tools
 
@@ -217,7 +154,6 @@ If you have never set up a server of any kind, here are some tips that make it e
 	* this means when you re-establish connection, you can run `tmux a` to re-attach to the session you were in previously
 	* the corollary to this is that it won't break sensitive install/upgrade operations!
 
-
 ## Commands
 
 A few useful commands and tidbits to use when troubleshooting:
@@ -228,33 +164,36 @@ You can verify where the server is logging to by running
 
 Check the log file to see if there are any issues there
 
-If the server didn't seem to start at all, try `journalctl -xe` and `systemctl status minetest-server`
+If the server didn't seem to start at all, try `journalctl -xe -u minetest` and `systemctl status minetest-server`
 
 If your mods aren't loading, check that you activated them in `world.mt`; then check the logs with grep
 
 	grep $MODNAME $LOGPATH -B 2 -A 5
 
-Substitute $MODNAME and $LOGPATH accordingly.
+Substitute `$MODNAME` and `$LOGPATH` accordingly.
 
-If your client cannot connect (timed out), check to see that your firewall is accepting incoming connections on the desired port. `sudo iptables -L`.
+If your client cannot connect (timed out), check to see that your firewall is accepting incoming connections on the desired port. `sudo ufw status`.
 
 Check also that the service is not in a restart loop:
 
 	less +F /var/log/minetest/minetest.log
 
-Watch this for a few seconds. If it remains the same always, then try connecting and see if it registers any activity at all. If it periodically scrolls lots of data, of which the minetest ASCII logo, it is in a loop; hit `ctrl C` and use Pg Up/Pg Dn (w / z also work) to locate the "Separator" that indicates the start of a new logging session and work down from there until you find your error.
+Watch this for a few seconds. If it remains the same always, then try connecting and see if it registers any activity at all. If it periodically scrolls lots of data, of which the minetest ASCII logo, it is in a loop; hit `Ctrl C` and use Pg Up/Pg Dn (w / z also work) to locate the "Separator" that indicates the start of a new logging session and work down from there until you find your error.
 
 ## Linux in general
 
 `minetest-server` as distributed via the PPAs tends to do things by the book, so everything is where you should expect it.
 
-Application configurations in Linux are typically stored in `/etc/$APPNAME`, remember this in general. In the case of minetest, this is the overall server config.
+* Application configurations in Linux are typically stored in `/etc/$APPNAME`, remember this in general.
+	* In the case of minetest, this is the overall server config.
 
-Application core assets (executables, themes, core data) tend to be stored in `/usr`, remember this in geenral. In the case of minetest, custom mods are installed there.
+* Application core assets (executables, themes, core data) tend to be stored in `/usr`, remember this in geenral.
+	* In the case of minetest, custom mods and additional games and textures are installed there.
 
-Application user data that tends to change whilst the application is used is typically stored under `/var`, remember this in general. In the case of minetest, this is world-related data
+* Application user data that tends to change whilst the application is used is typically stored under `/var`, remember this in general.
+	* In the case of minetest, this is world-related data
 
-Application logs tend to be predictably stored in `/var/logs`, and only accessible by root.
+* Application logs tend to be predictably stored in `/var/logs`, and only accessible by root.
 
 You can monitor the performance of the server with the `top` command
 
@@ -263,7 +202,7 @@ A more friendly command however is `htop`. Simply install and run
 	apt install htop
 	htop
 
-You can see at a glance how much memory and CPU usage is occurring, the server load (read up on load averages), memory usage and swap usage (if you have swap at all - in the case of a single-use server it is debateable whether this is necessary; when you have multiple applications ebing served, you may see some benefit. The jury is out on the use of swap. Tailor to your needs)
+You can see at a glance how much memory and CPU usage is occurring, the server load (read up on load averages), memory usage and swap usage (if you have swap at all - in the case of a single-use server it is debateable whether this is necessary; when you have multiple applications being served, you may see some benefit. The jury is out on the use of swap. Tailor to your needs)
 
 ## Reporting
 
@@ -298,4 +237,8 @@ This will check every 5 minutes, and alert you if any errors are found. Be caref
 
 A more professional solution is Nagios, Icinga, or the likes.
 
+Any problems with the scripts, [raise an issue](https://github.com/taikedz/mt-manage/issues)
+
 Any questions, ping me on twitter [@taikedz](https://twitter.com/taikedz)
+
+Any grievances, find me in-game as `DuCake` and we can have a deathmatch.
