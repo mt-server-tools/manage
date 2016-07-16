@@ -2,7 +2,7 @@
 
 Tools for managing a minetest server on Ubuntu
 
-Version: 0.0.1 - not really ready
+Version: 0.0.2 - keep digging
 
 ## What is minetest
 
@@ -34,6 +34,10 @@ I have also included an extensively annotated guide on configuring a Ubuntu serv
 * firewall management assistant/notes
 * tools to change freequency of spwans etc
 * tools to change some behaviours (eg tree felling, etc)
+
+## X-Worlds
+
+A side project to allow sharing basic user data between servers, essentially allowing a carryable inventory.
 
 ## Forum
 
