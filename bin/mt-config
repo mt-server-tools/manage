@@ -175,12 +175,12 @@ function readarg {
 function setconfval {
 	CONF_NAME=$1; shift
 	CONF_VALU="$(echo $1|xargs echo)"; shift # wallop newlines
-	if [[ -n "$*" ]] && [[ ! "$CONF_VALU" =~ $1 ]]; then
-		errore "Invalid $CONF_NAME data: '$CONF_VALU' (pattern required: $1 )"
-		return
-	fi
 
 	if [[ -n "$CONF_VALU" ]]; then
+		if [[ -n "$*" ]] && [[ ! "$CONF_VALU" =~ $1 ]]; then
+			errore "Invalid $CONF_NAME data: '$CONF_VALU' (pattern required: $1 )"
+			return
+		fi
 		infoe "Setting [ $CONF_NAME = $CONF_VALU ]"
 		sed -r "s/^\s*#?\s*$CONF_NAME\s*=.+/$CONF_NAME = $CONF_VALU/" -i "$MT_CONF"
 	fi
@@ -194,7 +194,7 @@ setconfval server_name "$SERV_NAME"
 setconfval server_description  "$SERV_DESC"
 setconfval server_address "$SERV_HOST" '^[a-zA-Z0-9-.]+$'
 setconfval server_announce "$SERV_PUBL" "$BOOLPAT"
-setconfval default_game "$SERV_GAME" "^\($(ls "$MT_GDATA/games|xargs echo|sed 's/ /|/g'")\)$"
+setconfval default_game "$SERV_GAME" "^\($(ls "$MT_GDATA/games"|xargs echo|sed 's/ /|/g')\)$"
 setconfval motd "$SERV_MOTD"
 setconfval max_users "$SERV_UMAX" "$INTPAT"
 setconfval enable_pvp "$SERV_PVPY" "$BOOLPAT"
