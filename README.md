@@ -2,7 +2,7 @@
 
 Tools for managing a minetest server on Ubuntu
 
-Version: 0.0.2 - keep digging
+Version: 0.0.3 - Not Yet Ready
 
 ## What is minetest
 
@@ -21,15 +21,21 @@ Currently there are only two items of note: a single script that installs the la
 ## Features
 
 * Install the latest minetest
-* text-based repo database files
-	* fork this repo, add your own mod list file, and make a pull request to be included!
+* Minetest configuration command
+* Extensively annotated guide on configuring a Ubuntu server from scratch
 
-I have also included an extensively annotated guide on configuring a Ubuntu server from scratch, in place until (and after) this project is complete.
+## Mod Sets
+
+The `mod-sets` directory contains individual files each specifying mods to install with the `mt-installmods` tool, and what sub-mods to install if applicable
+
+Build your own mod spec, and make a pull request to be included!
+
+* text-based repo database files
+* currently requires mod to have a Git URL - soon to be updated to also accept ZIP files
 
 ## To Do
 
 * manage `world.mt` file
-* basic `minetest.conf` initial params setter (install prompt?)
 * a proper searchable database of mods with descriptions, URL to description, and URL to source/ZIP (not necessarily github)
 * firewall management assistant/notes
 * tools to change freequency of spwans etc

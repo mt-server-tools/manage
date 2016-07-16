@@ -4,12 +4,17 @@ NEXT RELEASE: 0.0.3
 
 PREVIOUS RELEASES:
 
+0.0.3
+
+* added a config manipulation tool
+* edited the guide to read less like a blog post
+
 0.0.2
 
 * specify explicitly where to install mod files
 * Annotated guide on installing Minetest for server
 
-0.0.1 Not Really Ready
+0.0.1
 
 * added basic mods management
 * added basic installer for a server
