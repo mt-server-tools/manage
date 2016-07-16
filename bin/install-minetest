@@ -23,7 +23,7 @@ MODE_DEBUG=no
 
 function printhelp {
 cat <<EOHELP
-Installs the latest Minetest from the official PPAs for your Ubuntu system
+Installs the latest Minetest from the official PPAs for your Ubuntu system, and sets up mogray5's mod repository.
 EOHELP
 }
 
@@ -116,8 +116,11 @@ fi
 # at this point, system could still be debian; would it still succeed?
 echo "deb http://ppa.launchpad.net/minetestdevs/stable/ubuntu $distro main" >> "$ppafile"
 echo "deb-src http://ppa.launchpad.net/minetestdevs/stable/ubuntu $distro main" >> "$ppafile"
+echo "deb http://mmod.infinitypfm.org/ mmrepo main" >> "$ppafile"
+wget --quiet -O - http://mmod.infinitypfm.org/mmrepo.key | sudo apt-key add -
 
-if [[ -f "$(which minetest 2>/dev/null)" ]]; then
+{
+apt-get update && if [[ -f "$(which minetest 2>/dev/null)" ]]; then
 	if uconfirm "A version of minetest already exists. Remove it?"; then
 		apt-get remove minetest*
 		installfiles
@@ -125,8 +128,9 @@ if [[ -f "$(which minetest 2>/dev/null)" ]]; then
 		warne "Leaving minetest core files unchanged"
 	fi
 else
-	apt-get update && apt-get install minetest-server minetest-data git
+	apt-get install minetest-server minetest-data git
 fi
+} || faile "APT Update failed. Nohting was installed."
 
 if [[ "$(free|grep -i swap|awk '{print $2}')" -lt 1 ]]; then
 	swapsize=$(uask "You have no swap - please specify the # of MB of swap to configure, or leave emtpy to configure no swap (eg. 1000 for a gigabyte)")
