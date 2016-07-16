@@ -26,4 +26,6 @@ bigbang)
 	(cd /var/games/minetest/.minetest/worlds; rm -r world)
 	systemctl start minetest-server
 	;;
+*)
+	;;
 esac
