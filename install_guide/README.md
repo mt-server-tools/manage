@@ -25,11 +25,14 @@ This will install the base required items.
 
 Use the `mt-installmods` tool to install mods from individual mod-sets.
 
-### The mods file
+### Mod sets files
+
+Mod Sets files allow you to list URLs to download mods, and optionally what subdirectories contain the mods you want to install to your server mods directory.
 
 The initial line must contain the string `MTMODLIST` in it to identify a mod list file.
 
 Each line specifies a URL to a Git repository (Github, Gitlab, HTTP server, etc) where the mod can be downloaded from. It can optionally be followed by the names of sub-directories if the repo itself is not the mod.
+
 	# Example: the travelnet mod
 	# The github repo itself is the mod folder, so we don't specify any mods after the URL
 	https://github.com/Sokomine/travelnet
@@ -140,6 +143,8 @@ Happy mining!
 
 Remember: after you modify any file, install any mod, change any setting, you need to `systemctl restart minetest-server`
 
+The following notes are useful if you are new to managing a Linux host.
+
 ## Useful tools
 
 If you have never set up a server of any kind, here are some tips that make it easier:
@@ -147,7 +152,7 @@ If you have never set up a server of any kind, here are some tips that make it e
 * If you have never connected to a Linux server before, you can cehck [DigitalOcean's guide](https://www.digitalocean.com/community/tutorials/how-to-connect-to-your-droplet-with-ssh)
 	* For hosting, you need more than just regular hosting - you need a VPS, or to perform port forwarding on your home router to a machine inside your home
 * use `htop` to profile your server performance in colour
-* learn to use `vim` or `emacs`. I was reticent for along time and stuck with `nano` but I eventually got a job where everyone used vim, and only ever explained how to do tasks using vim. I learned and have never looked back.
+* learn to use `vim` or `emacs`. 
 	* but `nano` command will do if you do not have the confidence to approach the `vim` learning curve. I am told Emacs is equally as daunting to the novice.
 * use tmux - it's a temrinal multiplexer, which means you can ssh once into a server, and then have multiple views open at a time
 	* the other advantage is that it keeps running if your connection suddenly drops
@@ -180,6 +185,18 @@ Check also that the service is not in a restart loop:
 
 Watch this for a few seconds. If it remains the same always, then try connecting and see if it registers any activity at all. If it periodically scrolls lots of data, of which the minetest ASCII logo, it is in a loop; hit `Ctrl C` and use Pg Up/Pg Dn (w / z also work) to locate the "Separator" that indicates the start of a new logging session and work down from there until you find your error.
 
+### System updates
+
+You need to keep the libraries in your system up-to-date to avoid being hacked.
+
+Generally on Ubuntu, and given the software we are managing here, this should be sufficient:
+
+	apt update && apt upgrade
+
+Do this once every week or so.
+
+If you do a full system/distro upgrade, you may need to re-run the minetest install script to re-enable an appropriate PPA version.
+
 ## Linux in general
 
 `minetest-server` as distributed via the PPAs tends to do things by the book, so everything is where you should expect it.
@@ -188,12 +205,15 @@ Watch this for a few seconds. If it remains the same always, then try connecting
 	* In the case of minetest, this is the overall server config.
 
 * Application core assets (executables, themes, core data) tend to be stored in `/usr`, remember this in geenral.
-	* In the case of minetest, custom mods and additional games and textures are installed there.
+	* In the case of minetest, custom mods and additional games and textures are installed in `/usr/share/games/minetest`.
 
 * Application user data that tends to change whilst the application is used is typically stored under `/var`, remember this in general.
-	* In the case of minetest, this is world-related data
+	* In the case of minetest, this is world-related data at `/var/games/minetest-server/.minetest`
 
 * Application logs tend to be predictably stored in `/var/logs`, and only accessible by root.
+	* Minetest's logs are at `/var/log/minetest` though you can also view them with the `journalctl -xe -u minetest` command
+
+### Performance
 
 You can monitor the performance of the server with the `top` command
 
