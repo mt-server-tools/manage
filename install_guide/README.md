@@ -82,6 +82,20 @@ You can advertise your server on the main minetest list now!
 
 If you want, create an entry in the Servers section of the forums to talk about your server!
 
+## Updating
+
+Update the system, and any mods installed from APT repository:
+
+	apt update && apt upgrade
+
+Update all mods from mod-set: run the same mod set install as before
+
+	`bin/mt-installmods $MODSETFILE`
+
+Now restart minetest service:
+
+	systemctl restart minetest
+
 # More information
 
 See the [extended guide](extended_guide.md) for lenghtier notes and troubleshooting tips and tricks.
