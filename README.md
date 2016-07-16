@@ -38,8 +38,6 @@ Build your own mod spec, and make a pull request to be included!
 ## To Do
 
 * manage `world.mt` file
-* a proper searchable database of mods with descriptions, URL to description, and URL to source/ZIP (not necessarily github)
-* firewall management assistant/notes
 * Annotated guide for mod tweaking
 	* change freequency of mob spawns
 	* change tree felling behaviour
