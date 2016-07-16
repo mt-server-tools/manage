@@ -130,7 +130,7 @@ function readarg {
 		SERV_DESC=$1; shift ;;
 	-n|--name)
 		SERV_NAME=$1; shift ;;
-	-h)--host)
+	-h|--host)
 		SERV_HOST=$1; shift ;;
 	-a|--admin)
 		SERV_ADMN=$1; shift ;;
