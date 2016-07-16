@@ -2,7 +2,7 @@
 
 Tools for managing a minetest server on Ubuntu
 
-Version: 0.0.4
+Version: 0.1b
 
 ## What is minetest
 
@@ -24,6 +24,7 @@ Currently there are only two items of note: a single script that installs the la
 * Mod-sets installation script
 * Minetest configuration command to one-line edit configuration options
 * Extensively annotated guide on configuring a Ubuntu server from scratch
+* Integrates `mogray5`'s DEB repository for mods allowing you to install using `apt-get` directly
 
 ## Mod Sets
 
