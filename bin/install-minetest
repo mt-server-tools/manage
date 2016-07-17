@@ -83,6 +83,11 @@ function uconfirm {
 	[[ "$REPLY" =~ $ans ]]
 }
 
+function uask {
+	read -p "[1;34m$* > [0m"
+	echo "$REPLY"
+}
+
 function getarg {
 	# getarg SWITCH LIST
 	local SWITCH=$1 ; shift
