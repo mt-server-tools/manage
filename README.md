@@ -14,9 +14,9 @@ Minetest modding is done in lightweight Lua scripting, as opposed to heaview Jav
 
 Make it easy to set up a new minetest server on a Ubuntu instance, and to find and add mods to the server.
 
-Make a place where it is easy to share mod sets, or lookup mods by name and description - either by way of a git-manged file, or an actual server-client model repo system
+Make a place where it is easy to share mod sets, or lookup mods by name and description.
 
-Currently there are only two items of note: a single script that installs the latest minetest on your Ubuintu server system, and a script for installing collections of mods
+Make it easy to manage the minetest server throught its lifetime.
 
 ## Features
 
@@ -33,11 +33,12 @@ The `mod-sets` directory contains individual files each specifying mods to insta
 Build your own mod spec, and make a pull request to be included!
 
 * text-based repo database files
-* currently requires mod to have a Git URL - soon to be updated to also accept ZIP files
+* currently requires mod to have a Git URL (github, gitlab, bitbucket...)
 
 ## To Do
 
 * manage `world.mt` file
+* Make mod sets also accept ZIP file URLs
 * Annotated guide for mod tweaking
 	* change freequency of mob spawns
 	* change tree felling behaviour

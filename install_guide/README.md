@@ -102,4 +102,6 @@ See the [extended guide](extended_guide.md) for lenghtier notes and troubleshoot
 
 See [mogray5's forum post](https://forum.minetest.net/viewtopic.php?f=14&t=13051&p=225402) for more information on the APT repository
 
+See `rubenwardy`'s [guided tutorial](http://rubenwardy.com/minetest_modding_book/) for modding.
+
 See the [modding API guide](http://dev.minetest.net/Main_Page) for more information about mods, and to learn how to tweak mods.
