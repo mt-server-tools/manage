@@ -96,12 +96,7 @@ Remember to activate your firewall and allow incoming connections on your chosen
 
 	$0 -p 30001 -n "A new mintest server" -d "Just a test" --pvp true --damage true --broadcast true
 	ufw allow 30001
-	systemctl restart minetest
-
-Additional recommended steps for firewall
-
-	ufw allow OpenSSH
-	ufw activate
+	systemctl restart minetest-server
 
 EOHELP
 }
