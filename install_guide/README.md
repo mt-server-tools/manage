@@ -30,14 +30,14 @@ You should now be logging in as `myuser` (or whatever user name you specified), 
 	apt update && apt install git -y
 	git clone https://github.com/taikedz/mt-manage
 	cd mt-manage
-	bin/installminetest
+	bin/install-minetest
 
 ### Configure your server settings
 
 	bin/mt-config -a AdminUsername -n "Server Name" -d "Server description. Make it catchy!" -h "server.host.name"
 	bin/mt-config --pvp true --damage true
 	ufw allow 30000
-	systemctl restart minetest
+	systemctl restart minetest-server
 
 You now have a minetest server you can connect to and play on - but don't do that yet!
 
@@ -57,9 +57,9 @@ Then use `apt-get install $PKG` to install the appropriate package
 
 Activate the mods you have installed.
 
-	systemctl restart minetest
+	systemctl restart minetest-server
 	sed -r 's/false$/true/' -i /var/games/minetest-server/.minetest/worlds/world/world.mt
-	systemctl restart minetest
+	systemctl restart minetest-server
 
 ### Choose a spawn point
 
@@ -71,14 +71,14 @@ Replace X, Y and Z as appropriate, remember to use the double-quotes.
 
 Restart the service
 
-	systemctl restart minetest
+	systemctl restart minetest-server
 
 ## Go Live!
 
 You can advertise your server on the main minetest list now!
 
 	bin/mt-config -b true
-	systemctl restart minetest
+	systemctl restart minetest-server
 
 If you want, create an entry in the Servers section of the forums to talk about your server!
 
@@ -94,12 +94,14 @@ Update all mods from mod-set: run the same mod set install as before
 
 Now restart minetest service:
 
-	systemctl restart minetest
+	systemctl restart minetest-server
 
 # More information
 
 See the [extended guide](extended_guide.md) for lenghtier notes and troubleshooting tips and tricks.
 
 See [mogray5's forum post](https://forum.minetest.net/viewtopic.php?f=14&t=13051&p=225402) for more information on the APT repository
+
+See `rubenwardy`'s [guided tutorial](http://rubenwardy.com/minetest_modding_book/) for modding.
 
 See the [modding API guide](http://dev.minetest.net/Main_Page) for more information about mods, and to learn how to tweak mods.

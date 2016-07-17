@@ -104,11 +104,12 @@ cat $MODLIST |grep -P -v '(^\s*#)|(^\s*$)'| while read gitline; do
 		set -u
 		for fp in $filepaths; do
 			if [[ -f "$fp/init.lua" ]] || [[ -f "$fp/modpack.txt" ]]; then
-				[[ -d "$mtdir/mods/$fp" ]] && {
-					warne rm -r "$mtdir/mods/$fp"
-				}
-				if [[ $(abspath $fp) = $PWD ]]; then continue; fi # in case of erroneously supplying . (old style)
-				cp -r "$fp" "$mtdir/mods/$fp"
+				if [[ ! $(abspath $fp) = $PWD ]]; then # in case of erroneously supplying . (old style)
+					[[ -d "$mtdir/mods/$fp" ]] && {
+						rm -r "$mtdir/mods/$fp"
+					}
+					cp -r "$fp" "$mtdir/mods/$fp"
+				fi
 			else
 				warne "[$fp] in [$modname] is not a valid mod or modpack"
 			fi

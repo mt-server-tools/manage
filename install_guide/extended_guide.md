@@ -169,7 +169,7 @@ You can verify where the server is logging to by running
 
 Check the log file to see if there are any issues there
 
-If the server didn't seem to start at all, try `journalctl -xe -u minetest` and `systemctl status minetest-server`
+If the server didn't seem to start at all, try `journalctl -xe -u minetest-server` and `systemctl status minetest-server`
 
 If your mods aren't loading, check that you activated them in `world.mt`; then check the logs with grep
 

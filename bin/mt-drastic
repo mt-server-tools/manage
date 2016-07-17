@@ -1,0 +1,34 @@
+#!/bin/bash
+
+set +u
+
+MT_DATA=/var/games/minetest-server/.minetest/worlds
+
+# Some drastic things to do
+
+function printhelp {
+cat <<EOHELP
+
+Some drastic things to do to a server
+
+bigbang
+	destroy the world and create it anew	
+
+EOHELP
+}
+
+if [[ -z "$*" ]]; then
+printhelp
+exit 0
+fi
+
+ACTION=$1; shift
+
+case "$ACTION" in
+bigbang)
+	systemctl stop minetest-server
+	tar czf "/root/$(date "+%F-%T").tar.gz" -C "$MT_DATA" world
+	(cd "$MT_DATA"; rm -r world)
+	systemctl start minetest-server
+	;;
+esac
