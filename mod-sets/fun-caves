@@ -9,21 +9,23 @@ https://github.com/stujones11/minetest-3d_armor 3d_armor 3d_armor_stand shields
 https://github.com/minetest-technic/unified_inventory
 https://github.com/dmonty2/minetest-u_skinsdb
 
-https://github.com/everamzah/backpacks
-https://github.com/minetest-mods/stamina
+# even with unified inventory, remains useful for giving lots of stuff
+https://github.com/everamzah/backpacks 
 
 # ===========
 # Environments
 
 # -- Fun Caves
 # -- Adds a whole lot of terrain gen, mobs and stuff and whacky realms to discover.
-#https://github.com/duane-r/fun_caves/
+https://github.com/duane-r/fun_caves/
 
 
 # ===========
 # Protection mod
 https://github.com/tenplus1/protector
-https://github.com/Sokomine/cottages
+
+# ====================
+# other stuff
 
 # Some better farming
 https://github.com/tenplus1/farming
@@ -33,4 +35,3 @@ https://github.com/minetest-mods/playeranim
 
 # Some hard mobs
 https://github.com/maikerumine/esmobs
-https://github.com/NPXcoot/nssm
