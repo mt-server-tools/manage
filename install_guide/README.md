@@ -30,7 +30,7 @@ You should now be logging in as `myuser` (or whatever user name you specified), 
 	apt update && apt install git -y
 	git clone https://github.com/taikedz/mt-manage
 	cd mt-manage
-	bin/installminetest
+	bin/install-minetest
 
 ### Configure your server settings
 
