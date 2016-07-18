@@ -82,6 +82,14 @@ Restart the service
 
 	bin/mt-restart
 
+### Give initial items
+
+Change the intial items given, activate giving, and restart the server
+
+	bin/mt-gives
+	bin/mt-config --give-initial true
+	bin/mt-restart
+
 ## Go Live!
 
 You can advertise your server on the main minetest list now!
@@ -97,7 +105,7 @@ For client-side issues, run `minetest` from the command line and check the outpu
 
 For server-side issues, you can check the text log at `/var/log/minetest/minetest.log` or use `journalctl -xe -u minetest-server` for the system log
 
-## Monitoring
+### Monitoring
 
 To monitor resources live, use htop
 
@@ -111,6 +119,17 @@ To monitor chat whilst not connected to the game, execute the following on the s
 To monitor players connecting and disconnecting
 
 	tail -f /var/log/minetest.log | grep "List of players:"
+
+### Resetting the world
+
+You can backup; and reset world data (creates a new world, deletes players)
+
+	bin/mt-drastic entomb # makes a backup
+	bin/mt-drastic exorcise # reset
+
+You can also restore a previously backed up game; this automatically creates a backup of the existing game.
+
+	bin/mt-drastic exhume ARCHIVEFILE
 
 ## Updating
 
