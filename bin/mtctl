@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Central command for all things
+
+if [[ -z "$*" ]]; then
+cat <<EOF
+Available commands:
+
+* modset -- install from a mod set file
+* aptmod -- search for mods in repo
+* drastic -- do drastic things
+EOF
+exit
+fi

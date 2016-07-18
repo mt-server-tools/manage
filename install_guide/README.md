@@ -37,9 +37,11 @@ You should now be logging in as `myuser` (or whatever user name you specified), 
 	bin/mt-config -a AdminUsername -n "Server Name" -d "Server description. Make it catchy!" -h "server.host.name"
 	bin/mt-config --pvp true --damage true
 	ufw allow 30000
-	systemctl restart minetest-server
+	bin/mt-restart
 
-You now have a minetest server you can connect to and play on - but don't do that yet!
+See `bin/mt-config --help` for all available options.
+
+You now have a bare-bones minetest server you can connect to and play on - but don't do that yet!
 
 ### Choose mods, or choose a mod set
 
@@ -49,9 +51,12 @@ To use a mod-set
 
 There are example mod set files in [mod-sets](../mod-sets)
 
+For example:
+
+	bin/mt-installmods -m mod-sets/recommended
 
 
-To install individual mods from the mods repository
+To install individual mods from `mogray5`'s mods repository
 
 	apt-cache search minetest $MODNAME
 
@@ -63,11 +68,11 @@ Activate ALL the mods.
 
 	systemctl restart minetest-server
 	sed -r 's/^(load_mod.+)false$/\1true/' -i /var/games/minetest-server/.minetest/worlds/world/world.mt
-	systemctl restart minetest-server
+	bin/mt-restart
 
 ### Choose a spawn point
 
-This is optional. You can now log in to your server as your admin user and navigate around the world, build things, create a spawn hut if you want. Find the coordinates of the spawn point you want for all users and then run this command in the SSH session:
+This is optional. You can now log in to your server as your admin user and navigate around the world, build things, create a spawn hut if you want. Find the coordinates (use `F5` in-game to display stats) of the spawn point you want for all users and then run this command in the SSH session:
 
 	bin/mt-config --set-spawn "$X, $Y, $Z"
 
@@ -75,16 +80,56 @@ Replace X, Y and Z as appropriate, remember to use the double-quotes.
 
 Restart the service
 
-	systemctl restart minetest-server
+	bin/mt-restart
+
+### Give initial items
+
+Change the intial items given, activate giving, and restart the server
+
+	bin/mt-gives
+	bin/mt-config --give-initial true
+	bin/mt-restart
 
 ## Go Live!
 
 You can advertise your server on the main minetest list now!
 
 	bin/mt-config -b true
-	systemctl restart minetest-server
+	bin/mt-restart
 
 If you want, create an entry in [the Servers section of the forums](https://forum.minetest.net/viewforum.php?f=10) to talk about your server!
+
+## Troubleshooting
+
+For client-side issues, run `minetest` from the command line and check the output log, or check the `~/.minetest/debug.txt` for details
+
+For server-side issues, you can check the text log at `/var/log/minetest/minetest.log` or use `journalctl -xe -u minetest-server` for the system log
+
+### Monitoring
+
+To monitor resources live, use htop
+
+	apt update && apt install htop
+	htop
+
+To monitor chat whilst not connected to the game, execute the following on the server
+
+	tail -f /var/log/minetest.log | grep CHAT
+
+To monitor players connecting and disconnecting
+
+	tail -f /var/log/minetest.log | grep "List of players:"
+
+### Resetting the world
+
+You can backup; and reset world data (creates a new world, deletes players)
+
+	bin/mt-drastic entomb # makes a backup
+	bin/mt-drastic exorcise # reset
+
+You can also restore a previously backed up game; this automatically creates a backup of the existing game.
+
+	bin/mt-drastic exhume ARCHIVEFILE
 
 ## Updating
 
@@ -98,7 +143,7 @@ Update all mods from mod-set: run the same mod set install as before
 
 Now restart minetest service:
 
-	systemctl restart minetest-server
+	bin/mt-restart
 
 # More information
 

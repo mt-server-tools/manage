@@ -1,13 +1,25 @@
 Changelog
 
-NEXT RELEASE: 0.2
+Current release: 0.1.1
 
-THIS RELEASE: 0.1
+PREVIOUS RELEASES:
+
+0.1.1
+
+* Added restart tool, 
+* Fix name of service
+* Fixed uask error in swap installation
+* Added restart script that checks for connected players
+* Added shortcut for editing initial-gives
+* Added user deletion tool
+* Added full backup/restore tool - all game data, play data, installed mods, logs
+* Added World archival/reset functions - affecting only active world data
+* Adjusted mod activation snippet in help to only activate actual mods
+
+0.1
 
 * Added mogray5's apt repo
 * made a quick start guide to complement the extended guide
-
-PREVIOUS RELEASES:
 
 0.0.4
 
