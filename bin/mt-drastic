@@ -12,6 +12,12 @@ Some drastic things to do to a live server... each action stops the service, and
 entomb
 	save an archival copy of the world
 
+rapture
+	save the players and auth info - TO DO
+
+sendforth PLAYERDATA
+	restore player data - TO DO
+
 exorcise
 	destroy the current world and create a fresh new one
 
@@ -32,7 +38,7 @@ To save a world and reinstate an old one
 EOHELP
 }
 
-if [[ -z "$*" ]]; then
+if [[ -z "$*" ]] || [[ "$*" =~ --help ]]; then
 printhelp
 exit 0
 fi
