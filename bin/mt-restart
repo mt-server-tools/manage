@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [[ -n "$(grep -P -o "List of players:.+" /var/log/minetest/minetest.log|sed "s/List of players: //"|tail -n 1)" ]]; then
+	read -p "It seems there are still players online - are you sure? [y/N]> "
+	if [[ "$REPLY" =~ $(echo '^(yes|YES|y|Y)$') ]]; then
+		systemctl restart minetest-server
+	fi
+fi
