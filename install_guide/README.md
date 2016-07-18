@@ -45,7 +45,11 @@ You now have a minetest server you can connect to and play on - but don't do tha
 
 To use a mod-set
 
-	bin/mt-installmods -m mod-sets/$SETNAME
+	bin/mt-installmods -m $MODSETFILE
+
+There are example mod set files in [mod-sets](../mod-sets)
+
+
 
 To install individual mods from the mods repository
 
@@ -55,10 +59,10 @@ Then use `apt-get install $PKG` to install the appropriate package
 
 #### Activate mods
 
-Activate the mods you have installed.
+Activate ALL the mods.
 
 	systemctl restart minetest-server
-	sed -r 's/false$/true/' -i /var/games/minetest-server/.minetest/worlds/world/world.mt
+	sed -r 's/^(load_mod.+)false$/\1true/' -i /var/games/minetest-server/.minetest/worlds/world/world.mt
 	systemctl restart minetest-server
 
 ### Choose a spawn point
@@ -80,7 +84,7 @@ You can advertise your server on the main minetest list now!
 	bin/mt-config -b true
 	systemctl restart minetest-server
 
-If you want, create an entry in the Servers section of the forums to talk about your server!
+If you want, create an entry in [the Servers section of the forums](https://forum.minetest.net/viewforum.php?f=10) to talk about your server!
 
 ## Updating
 

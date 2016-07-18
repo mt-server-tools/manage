@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# The full backup/restore
+
+MT_UDATA=/var/games/minetest-server/.minetest
+MT_GDATA=/usr/share/games/minetest
+MT_LDATA=/var/log/minetest
+
+if [[ -z "$*" ]]; then
+cat <<EOHELP
+
+Backup/restore the player data, game data, and logs
+
+	$0 backup
+	$0 restore ARCHIVE
+
+EOHELP
+exit
+fi
+
+if [[ "$1" = backup ]]; then
+	aname="$(date "+%F-%T").tar.gz"
+	tar czf "$aname" -C / "$MT_DATA" "$MT_GDATA" "$MT_LDATA"
+	echo "Data saved at $aname"
+elif [[ "$1" = restore ]]; then
+	shift
+	if [[ -z "$*" ]]; then
+		echo "Please specify an archive file"
+		exit 1
+	fi
+
+	if ! (tar tzf "$1"|grep "/var/games/minetest-server" -q); then
+		echo "Not a minetest backup directory"
+		exit 1
+	fi
+
+	"$0" backup # backup existing config just in case!
+	set -e
+	cd "$MT_GDATA" ; rm -r ./*
+	cd "$MT_UDATA" ; rm -r ./*
+	cd "$MT_LDATA" ; rm -r ./*
+
+	tar xzf "$1" -C /
+else
+	echo "Invalid option: $1"
+fi

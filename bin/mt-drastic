@@ -4,20 +4,41 @@ set +u
 
 MT_DATA=/var/games/minetest-server/.minetest/worlds
 
-# Some drastic things to do
-
 function printhelp {
 cat <<EOHELP
 
-Some drastic things to do to a server
+Some drastic things to do to a live server... each action stops the service, and then re-starts it.
 
-bigbang
-	destroy the world and create it anew	
+entomb
+	save an archival copy of the world
+
+rapture
+	save the players and auth info - TO DO
+
+sendforth PLAYERDATA
+	restore player data - TO DO
+
+exorcise
+	destroy the current world and create a fresh new one
+
+exhume ARCHIVE
+	restore a previously entombed world
+
+
+You should consider enombing before exorcising or exhuming.
+
+To save a world and create a new one
+
+	$0 entomb && $0 exorcise
+
+To save a world and reinstate an old one
+
+	$0 entomb && $0 exhume ARCHIVE
 
 EOHELP
 }
 
-if [[ -z "$*" ]]; then
+if [[ -z "$*" ]] || [[ "$*" =~ --help ]]; then
 printhelp
 exit 0
 fi
@@ -25,10 +46,33 @@ fi
 ACTION=$1; shift
 
 case "$ACTION" in
-bigbang)
+entomb)
+	archivename="/root/$(date "+%F-%T").tar.gz"
 	systemctl stop minetest-server
-	tar czf "/root/$(date "+%F-%T").tar.gz" -C "$MT_DATA" world
+	tar czf "$archivename" -C "$MT_DATA" world
+	echo "The world has been saved at $archivename"
+	systemctl start minetest-server
+	;;
+exorcise)
+	systemctl stop minetest-server
 	(cd "$MT_DATA"; rm -r world)
+	systemctl start minetest-server
+	echo "Consider editing $MT_DATA/world/world.mt and re-starting minetest"
+	;;
+exhume)
+	if [[ -z "$*" ]]; then
+		echo "Please specify an archive"
+		exit 1
+	fi
+	archivename="$1"; shift
+
+	if ! (tar tzf "$archivename"|grep 'world.mt' -q); then
+		echo "Not a minetest archive!"
+		exit 1
+	fi
+	systemctl stop minetest-server
+	(cd "$MT_DATA" ; rm world)
+	tar xzf "$archivename" -C "$MT_DATA"
 	systemctl start minetest-server
 	;;
 esac
