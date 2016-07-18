@@ -6,7 +6,7 @@ Version: 0.1
 
 ## What is minetest
 
-[Minetest](https://minetest.net) is an open-source competitor to Minecraft. What it lacks in spit-polish, it makes up in ease of modding and extensibility.
+[Minetest](https://www.minetest.net) is an open-source competitor to Minecraft. What it lacks in spit-polish, it makes up in ease of modding and extensibility.
 
 Minetest modding is done in lightweight Lua scripting, as opposed to heavy Java programming. Minetest mods are often distributed as git repositories or ZIP files - as such, syncing a git repository to your mods directory, or unpacking a ZIP into your mods directory is often all that is needed to install a mod.
 
