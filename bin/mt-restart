@@ -5,4 +5,6 @@ if [[ -n "$(grep -P -o "List of players:.+" /var/log/minetest/minetest.log|sed "
 	if [[ "$REPLY" =~ $(echo '^(yes|YES|y|Y)$') ]]; then
 		systemctl restart minetest-server
 	fi
+else
+	systemctl restart minetest-server
 fi
