@@ -8,3 +8,5 @@ if [[ -n "$(grep -P -o "List of players:.+" /var/log/minetest/minetest.log|sed "
 else
 	systemctl restart minetest-server
 fi
+
+journalctl -xe -u minetest-server|tail -n 10
