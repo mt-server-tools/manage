@@ -10,3 +10,5 @@ else
 fi
 
 journalctl -xe -u minetest-server|tail -n 10
+sleep 3
+journalctl -xe -u minetest-server|tail -n 10
