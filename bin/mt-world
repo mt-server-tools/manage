@@ -29,7 +29,7 @@ NEWVAL="$1"; shift
 if [[ -z "$*" ]]; then
 	setval "$NEWVAL"
 else
-	for mod "$@"; do
+	for mod in "$@"; do
 		setval "$NEWVAL" "$mod"
 	done
 fi
