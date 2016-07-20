@@ -8,7 +8,7 @@ if [[ -z "$*" ]] || [[ "$*" =~ --help ]]; then
 	echo "Specify names of players to delete. They will not be banned, but will spawn as new players on next login"
 fi
 
-rm "$MT_DATA/worlds/world/players/$1"
-sed -r "/^$1/d" -i "$MT_DATA/worlds/world/auth.txt"
+rm "$MT_UDATA/worlds/world/players/$1"
+sed -r "/^$1/d" -i "$MT_UDATA/worlds/world/auth.txt"
 
 echo "[1;33mYou need top restart minetest-server for the deletion to take effect.[0m"
