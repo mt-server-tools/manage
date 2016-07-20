@@ -21,7 +21,7 @@ function setval {
 	if [[ -z "$modname" ]]; then
 		modname=".+"
 	fi
-	sed -r "s/^(load_mod_${modname}=)$/\1 $1/" -i "$WFILE"
+	sed -r "s/^(load_mod_${modname}=).+$/\1 $1/" -i "$WFILE"
 }
 
 NEWVAL="$1"; shift
