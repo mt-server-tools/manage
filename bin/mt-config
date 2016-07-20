@@ -168,8 +168,8 @@ function readarg {
 }
 
 function setconfval {
-	CONF_NAME=$1; shift
-	CONF_VALU="$(echo $1|xargs echo)"; shift # wallop newlines
+	CONF_NAME="$1"; shift
+	CONF_VALU="$(echo "$1"|cat -)"; shift # wallop newlines
 
 	if [[ -n "$CONF_VALU" ]]; then
 		if [[ -n "$*" ]] && [[ ! "$CONF_VALU" =~ $1 ]]; then
