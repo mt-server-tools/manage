@@ -177,7 +177,7 @@ function setconfval {
 			return
 		fi
 		infoe "Setting [ $CONF_NAME = $CONF_VALU ]"
-		sed -r "s/^\s*#?\s*$CONF_NAME\s*=.+/$CONF_NAME = $CONF_VALU/" -i "$MT_CONF"
+		sed -r "s^\s*#?\s*$CONF_NAME\s*=.+$CONF_NAME = $CONF_VALU" -i "$MT_CONF"
 	fi
 }
 
