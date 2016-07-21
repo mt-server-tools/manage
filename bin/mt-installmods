@@ -1,7 +1,6 @@
 #!/bin/bash
 
 mtdir=
-MODLIST=
 
 function warne {
 	echo "[1;33m$*[0m" 1>&2
@@ -15,22 +14,6 @@ function uconfirm {
 	return 1
 }
 
-function getvars {
-	while [[ -n "$*" ]]; do
-		ARG=$1; shift
-		case "$ARG" in
-			-m)
-				MODLIST=$1; shift ;;
-			-d)
-				mtdir=$1; shift ;;
-			*)
-				warne Unknown argument "[ $ARG ]"
-				exit 1
-				;;
-		esac
-	done
-}
-
 function abspath {
 	local newvar=${1//"'"/"\\'"}
 	python -c "import os ; print os.path.abspath('$newvar')"
@@ -40,19 +23,16 @@ function printhelp {
 cat <<EOHELP
 Script to install mods from a mods list
 
-	$0 -m MODLIST [-d MODSDIR]
+	$0 MODLISTS ...
 
 By default installs to ~/.minetest/mods ; if run as root installs to /usr/share/games/minetest
-
-Specify the mod directory explicitly using the '-d' option
 
 EOHELP
 }
 
 
-getvars "$@"
 
-if [[ -z "$MODLIST" ]]; then
+if [[ -z "$*" ]]; then
 	warne No mod list file specified
 	exit 1
 fi
@@ -70,49 +50,51 @@ fi
 mkdir -p $mtdir/pkgs
 mkdir -p $mtdir/mods
 
-if [[ -n "$MODLIST" ]] && [[ -f "$MODLIST" ]] && (head -n 1 "$MODLIST"|grep -q MTMODLIST); then
-	echo "Loaded modlist $MODLIST"
-else
-	warne "Not a mod list file"
-	exit
-fi
-
-cat $MODLIST |grep -P -v '(^\s*#)|(^\s*$)'| while read gitline; do
-	giturl=$(echo "$gitline"|awk '{print $1}')
-	filepaths=$(echo "$gitline"|sed -r 's/^\S+//')
-	gitname="$(basename "$giturl")"
-	modname=$(echo "$gitname"|sed -r -e 's/[^a-zA-Z0-9]+/_/g')
-
-	if [[ -z "$filepaths" ]]; then # repo is the mod itself
-		cd "$mtdir/mods"
-		if [[ -d "$modname" ]]; then # repo is the mod itself
-			cd "$modname"
-			git pull origin master
-		else
-			git clone "$giturl" "$modname"
-		fi
+for MODLIST in "$@"; do
+	if [[ -n "$MODLIST" ]] && [[ -f "$MODLIST" ]] && (head -n 1 "$MODLIST"|grep -q MTMODLIST); then
+		echo "Loaded modlist $MODLIST"
 	else
-		cd "$mtdir/pkgs"
-		if [[ -d "$modname/" ]]; then # mod is under repo, main repo was not moved
-			cd "$modname"
-			git pull origin master
-		else
-			git clone "$giturl" "$modname"
-			cd "$modname"
-		fi
-		
-		set -u
-		for fp in $filepaths; do
-			if [[ -f "$fp/init.lua" ]] || [[ -f "$fp/modpack.txt" ]]; then
-				if [[ ! $(abspath $fp) = $PWD ]]; then # in case of erroneously supplying . (old style)
-					[[ -d "$mtdir/mods/$fp" ]] && {
-						rm -r "$mtdir/mods/$fp"
-					}
-					cp -r "$fp" "$mtdir/mods/$fp"
-				fi
-			else
-				warne "[$fp] in [$modname] is not a valid mod or modpack"
-			fi
-		done
+		warne "Not a mod list file"
+		exit
 	fi
+
+	cat $MODLIST |grep -P -v '(^\s*#)|(^\s*$)'| while read gitline; do
+		giturl=$(echo "$gitline"|awk '{print $1}')
+		filepaths=$(echo "$gitline"|sed -r 's/^\S+//')
+		gitname="$(basename "$giturl")"
+		modname=$(echo "$gitname"|sed -r -e 's/[^a-zA-Z0-9]+/_/g')
+
+		if [[ -z "$filepaths" ]]; then # repo is the mod itself
+			cd "$mtdir/mods"
+			if [[ -d "$modname" ]]; then # repo is the mod itself
+				cd "$modname"
+				git pull origin master
+			else
+				git clone "$giturl" "$modname"
+			fi
+		else
+			cd "$mtdir/pkgs"
+			if [[ -d "$modname/" ]]; then # mod is under repo, main repo was not moved
+				cd "$modname"
+				git pull origin master
+			else
+				git clone "$giturl" "$modname"
+				cd "$modname"
+			fi
+			
+			set -u
+			for fp in $filepaths; do
+				if [[ -f "$fp/init.lua" ]] || [[ -f "$fp/modpack.txt" ]]; then
+					if [[ ! $(abspath $fp) = $PWD ]]; then # in case of erroneously supplying . (old style)
+						[[ -d "$mtdir/mods/$fp" ]] && {
+							rm -r "$mtdir/mods/$fp"
+						}
+						cp -r "$fp" "$mtdir/mods/$fp"
+					fi
+				else
+					warne "[$fp] in [$modname] is not a valid mod or modpack"
+				fi
+			done
+		fi
+	done
 done
