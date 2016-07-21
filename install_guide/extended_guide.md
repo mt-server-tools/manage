@@ -43,9 +43,9 @@ Each line specifies a URL to a Git repository (Github, Gitlab, HTTP server, etc)
 	# these are the names of the mod directories directly under the github repo
 	https://github.com/stujones11/minetest-3d_armor 3d_armor 3d_armor_stand shields
 
-Run the script, supplying a mod set file
+Run the script, supplying one or more mod set files
 
-	mt-installmods -m MODSETFILE
+	mt-installmods MODSETFILE ...
 
 ## Editing the server settings
 

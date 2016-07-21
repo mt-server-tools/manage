@@ -47,13 +47,13 @@ You now have a bare-bones minetest server you can connect to and play on - but d
 
 To use a mod-set
 
-	bin/mt-installmods -m $MODSETFILE
+	bin/mt-installmods $MODSETFILE
 
 There are example mod set files in [mod-sets](../mod-sets)
 
 For example:
 
-	bin/mt-installmods -m mod-sets/recommended
+	bin/mt-installmods mod-sets/adventure mod-sets/multiplayer
 
 
 To install individual mods from `mogray5`'s mods repository
