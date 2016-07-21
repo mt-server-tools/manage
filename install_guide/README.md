@@ -66,8 +66,8 @@ Then use `apt-get install $PKG` to install the appropriate package
 
 Activate ALL the mods.
 
-	systemctl restart minetest-server
-	sed -r 's/^(load_mod.+)false$/\1true/' -i /var/games/minetest-server/.minetest/worlds/world/world.mt
+	bin/mt-restart
+	bin/mt-world true
 	bin/mt-restart
 
 ### Choose a spawn point

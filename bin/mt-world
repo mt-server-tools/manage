@@ -1,0 +1,35 @@
+#!/bin/bash
+
+WFILE=/var/games/minetest-server/.minetest/worlds/world/world.mt
+
+if [[ -z "$*" ]]; then
+	cat "$WFILE"
+	exit
+fi
+
+if [[ "$1" =~ --help ]]; then
+cat <<EOHELP
+
+	$0 # dump world data to console
+	$0 NEWVAL [MOD NAMES ...] # set value for mods. All if no mod specified
+
+EOHELP
+fi
+
+function setval {
+	modname=$2
+	if [[ -z "$modname" ]]; then
+		modname=".+"
+	fi
+	sed -r "s/^(load_mod_${modname} =).+$/\1 $1/" -i "$WFILE"
+}
+
+NEWVAL="$1"; shift
+
+if [[ -z "$*" ]]; then
+	setval "$NEWVAL"
+else
+	for mod in "$@"; do
+		setval "$NEWVAL" "$mod"
+	done
+fi

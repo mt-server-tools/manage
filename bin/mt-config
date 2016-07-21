@@ -120,45 +120,45 @@ function readarg {
 	ARG="$1" ; shift
 	case "$ARG" in
 	-p|--port)
-		SERV_PORT=$1; shift ;;
+		SERV_PORT="$1"; shift ;;
 	-d|--description)
-		SERV_DESC=$1; shift ;;
+		SERV_DESC="$1"; shift ;;
 	-n|--name)
-		SERV_NAME=$1; shift ;;
+		SERV_NAME="$1"; shift ;;
 	-h|--host)
-		SERV_HOST=$1; shift ;;
+		SERV_HOST="$1"; shift ;;
 	-a|--admin)
-		SERV_ADMN=$1; shift ;;
+		SERV_ADMN="$1"; shift ;;
 	-b|--broadcast)
-		SERV_PUBL=$1; shift ;;
+		SERV_PUBL="$1"; shift ;;
 	-g|--game)
-		SERV_GAME=$1; shift ;;
+		SERV_GAME="$1"; shift ;;
 	-u|--usermax)
-		SERV_UMAX=$1; shift ;;
+		SERV_UMAX="$1"; shift ;;
 	-x|--pvp)
-		SERV_PVPY=$1; shift ;;
+		SERV_PVPY="$1"; shift ;;
 	-c|--creative)
-		SERV_CREA=$1; shift ;;
+		SERV_CREA="$1"; shift ;;
 	-m|--damage)
-		SERV_DAMG=$1; shift ;;
+		SERV_DAMG="$1"; shift ;;
 	-r|--privs)
-		SERV_PRIV=$1; shift ;;
+		SERV_PRIV="$1"; shift ;;
 	--motd)
-		SERV_MOTD=$1; shift ;;
+		SERV_MOTD="$1"; shift ;;
 	--seed)
-		SERV_SEED=$1; shift ;;
+		SERV_SEED="$1"; shift ;;
 	--peaceful-mobs)
-		SERV_PEAC=$1; shift ;;
+		SERV_PEAC="$1"; shift ;;
 	--give-initial)
-		SERV_GIVE=$1; shift ;;
+		SERV_GIVE="$1"; shift ;;
 	--default-pass)
-		SERV_PASS=$1; shift ;;
+		SERV_PASS="$1"; shift ;;
 	--no-empty)
-		SERV_NOEM=$1; shift ;;
+		SERV_NOEM="$1"; shift ;;
 	--spawn-at)
-		SERV_SPWN=$1; shift ;;
+		SERV_SPWN="$1"; shift ;;
 	--time-ratio)
-		SERV_TIME=$1; shift ;;
+		SERV_TIME="$1"; shift ;;
 
 	*)
 		errore "Cannot process [$ARG]"
@@ -168,8 +168,8 @@ function readarg {
 }
 
 function setconfval {
-	CONF_NAME=$1; shift
-	CONF_VALU="$(echo $1|xargs echo)"; shift # wallop newlines
+	CONF_NAME="$1"; shift
+	CONF_VALU="$(echo "$1"|cat -)"; shift # wallop newlines
 
 	if [[ -n "$CONF_VALU" ]]; then
 		if [[ -n "$*" ]] && [[ ! "$CONF_VALU" =~ $1 ]]; then
@@ -177,7 +177,7 @@ function setconfval {
 			return
 		fi
 		infoe "Setting [ $CONF_NAME = $CONF_VALU ]"
-		sed -r "s/^\s*#?\s*$CONF_NAME\s*=.+/$CONF_NAME = $CONF_VALU/" -i "$MT_CONF"
+		sed -r "s^\s*#?\s*$CONF_NAME\s*=.+$CONF_NAME = $CONF_VALU" -i "$MT_CONF"
 	fi
 }
 
