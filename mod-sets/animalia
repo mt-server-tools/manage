@@ -1,8 +1,15 @@
 #MTMODLIST
 
-#https://github.com/sapier/animals_modpack animal_chicken animal_deer animal_cow animal_creeper animal_fish_blue_white animal_sheep mod_oerkki mob_ostritch mob_slime mob_warthog
 https://github.com/tenplus1/mobs_redo
+#https://github.com/ac-minetest/smart_mobs
+
 https://github.com/tenplus1/mobs_animal
+https://github.com/blert2112/mobs_more_animals
+
+https://github.com/blert2112/mobs_water
+https://github.com/blert2112/mobs_sky
+
 https://github.com/tenplus1/mobs_monster
 https://github.com/blert2112/mobs_more_monsters
+
 https://github.com/duane-r/dmobs
