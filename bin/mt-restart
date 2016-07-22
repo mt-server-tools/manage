@@ -1,16 +1,37 @@
 #!/bin/bash
 
-playerlist="$(grep -P -o "List of players:.+" /var/log/minetest/minetest.log|sed "s/List of players: //"|tail -n 1)"
+function checkforplayers {
+	playerlist="$(grep -P -o "List of players:.+" /var/log/minetest/minetest.log|sed "s/List of players: //"|tail -n 1)"
 
-if [[ -n "$playerlist" ]]; then
-	echo "Players: $playerlist"
-	read -p "It seems there are still players online - are you sure? [y/N]> "
-	if [[ ! "$REPLY" =~ $(echo '^(yes|YES|y|Y)$') ]]; then
-		exit 1
+	if [[ -n "$playerlist" ]]; then
+		echo "Players: $playerlist"
+		read -p "It seems there are still players online - are you sure? [y/N]> "
+		if [[ ! "$REPLY" =~ $(echo '^(yes|YES|y|Y)$') ]]; then
+			return 1
+		fi
 	fi
+	return 0
+}
+
+if [[ -z "$*" ]]; then
+	echo "No action specified. Actions: stop, start, restart"
+	exit 1
 fi
 
-systemctl restart minetest-server
+for action in "$1"; do
+echo "Action: $1"
+case "$action" in
+	stop)
+		checkforplayers && systemctl stop minetest-server
+		;;
+	start)
+		systemctl start minetest-server
+		;;
+	*)
+		checkforplayers && systemctl restart minetest-server
+		;;
+esac
+done
 
 sleep 3
 journalctl -xe -u minetest-server|tail -n 20
