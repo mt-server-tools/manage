@@ -7,7 +7,7 @@ function checkforplayers {
 		echo "Players: $playerlist"
 		read -p "It seems there are still players online - are you sure? [y/N]> "
 		if [[ ! "$REPLY" =~ $(echo '^(yes|YES|y|Y)$') ]]; then
-			return 1
+			exit 1
 		fi
 	fi
 	return 0
