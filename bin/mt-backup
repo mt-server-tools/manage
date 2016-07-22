@@ -21,9 +21,10 @@ fi
 
 if [[ "$1" = backup ]]; then
 	aname="$(date "+%F-%T"|sed -r 's/[^[0-9-]+//g').tar.gz"
-	(tar czf "$aname" -C / "$MT_UDATA" "$MT_GDATA" "$MT_LDATA" "$MT_CONF" &&
+	(bin/mtctl stop && tar czf "$aname" -C / "$MT_UDATA" "$MT_GDATA" "$MT_LDATA" "$MT_CONF" &&
 		echo "[1;32mData saved at $aname[0m") ||
 		{ echo "[1;31mBackup failed[0m" ; exit 1 ; }
+	bin/mtctl start
 elif [[ "$1" = restore ]]; then
 	shift
 	if [[ -z "$*" ]]; then
@@ -37,6 +38,7 @@ elif [[ "$1" = restore ]]; then
 	fi
 
 	"$0" backup || { echo "[01;33mABORT[0m" ; exit 1; }  # backup existing config just in case!
+	bin/mtctl stop
 	set -e
 	(cd "$MT_GDATA" ; rm -r ./* )
 	(cd "$MT_UDATA" ; rm -r ./* )
@@ -44,6 +46,7 @@ elif [[ "$1" = restore ]]; then
 	(cd "$MT_CONF" ; rm -r ./* )
 
 	tar xzf "$1" -C /
+	bin/mtctl start
 else
 	echo "[1;31mInvalid option: $1[0m"
 	exit 1
