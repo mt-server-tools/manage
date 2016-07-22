@@ -20,7 +20,7 @@ if [[ -z "$*" ]]; then
 fi
 
 action="$1" ; shift
-echo "Action: $1"
+echo "Action: $action"
 case "$action" in
 	stop)
 		checkforplayers "$@" && systemctl stop minetest-server
