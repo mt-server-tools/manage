@@ -37,7 +37,7 @@ You should now be logging in as `myuser` (or whatever user name you specified), 
 	bin/mt-config -a AdminUsername -n "Server Name" -d "Server description. Make it catchy!" -h "server.host.name"
 	bin/mt-config --pvp true --damage true
 	ufw allow 30000
-	bin/mt-restart
+	bin/mtctl restart
 
 See `bin/mt-config --help` for all available options.
 
@@ -66,9 +66,9 @@ Then use `apt-get install $PKG` to install the appropriate package
 
 Activate ALL the mods.
 
-	bin/mt-restart
+	bin/mtctl restart
 	bin/mt-world true
-	bin/mt-restart
+	bin/mtctl restart
 
 ### Choose a spawn point
 
@@ -80,7 +80,7 @@ Replace X, Y and Z as appropriate, remember to use the double-quotes.
 
 Restart the service
 
-	bin/mt-restart
+	bin/mtctl restart
 
 ### Give initial items
 
@@ -88,14 +88,14 @@ Change the intial items given, activate giving, and restart the server
 
 	bin/mt-gives
 	bin/mt-config --give-initial true
-	bin/mt-restart
+	bin/mtctl restart
 
 ## Go Live!
 
 You can advertise your server on the main minetest list now!
 
 	bin/mt-config -b true
-	bin/mt-restart
+	bin/mtctl restart
 
 If you want, create an entry in [the Servers section of the forums](https://forum.minetest.net/viewforum.php?f=10) to talk about your server!
 
@@ -143,7 +143,7 @@ Update all mods from mod-set: run the same mod set install as before
 
 Now restart minetest service:
 
-	bin/mt-restart
+	bin/mtctl restart
 
 # More information
 
