@@ -21,7 +21,7 @@ fi
 
 if [[ "$1" = backup ]]; then
 	aname="$(date "+%F-%T"|sed -r 's/[^[0-9-]+//g').tar.gz"
-	bin/mtctl || exit 1
+	bin/mtctl stop || exit 1
 	(tar czf "$aname" -C / "$MT_UDATA" "$MT_GDATA" "$MT_LDATA" "$MT_CONF" &&
 		echo "[1;32mData saved at $aname[0m") ||
 		{ echo "[1;31mBackup failed[0m" ; exit 1 ; }
