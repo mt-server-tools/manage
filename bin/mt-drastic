@@ -48,15 +48,16 @@ ACTION=$1; shift
 case "$ACTION" in
 entomb)
 	archivename="/root/$(date "+%F-%T").tar.gz"
-	systemctl stop minetest-server
-	tar czf "$archivename" -C "$MT_DATA" world
+	bin/mt-restart || exit 1
+	cp /etc/minetest/minetest.conf "$MT_DATA/"
+	tar czf "$archivename" -C "$MT_DATA" world "minetest.conf"
 	echo "The world has been saved at $archivename"
-	systemctl start minetest-server
+	bin/mt-restart
 	;;
 exorcise)
-	systemctl stop minetest-server
+	bin/mt-restart || exit 1
 	(cd "$MT_DATA"; rm -r world)
-	systemctl start minetest-server
+	bin/mt-restart || exit 1
 	echo "Consider editing $MT_DATA/world/world.mt and re-starting minetest"
 	;;
 exhume)
@@ -70,9 +71,13 @@ exhume)
 		echo "Not a minetest archive!"
 		exit 1
 	fi
-	systemctl stop minetest-server
-	(cd "$MT_DATA" ; rm world)
+	bin/mt-restart || exit 1
+	(cd "$MT_DATA" ; rm -r world)
 	tar xzf "$archivename" -C "$MT_DATA"
-	systemctl start minetest-server
+	if [[ -f "$MT_DATA/minetest.conf" ]]; then
+		mv /etc/minetest/minetest.conf{,-bak.$(date "+%F"|sed -r 's/[^0-9]//g')}
+		mv "$MT_DATA/minetest.conf" "/etc/minetest/minetest.conf"
+	fi
+	bin/mt-restart
 	;;
 esac
