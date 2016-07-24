@@ -89,7 +89,7 @@ for MODLIST in "$@"; do
 						[[ -d "$mtdir/mods/$fp" ]] && {
 							rm -r "$mtdir/mods/$fp"
 						}
-						cp -r "$fp" "$mtdir/mods/$fp"
+						cp -r "$fp" "$mtdir/mods/$(basename $fp)"
 					fi
 				else
 					warne "[$fp] in [$modname] is not a valid mod or modpack"
