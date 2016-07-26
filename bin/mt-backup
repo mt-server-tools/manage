@@ -33,7 +33,7 @@ elif [[ "$1" = restore ]]; then
 		exit 1
 	fi
 
-	if [[ ! -f "$1" ]] || ! (tar tzf "$1"|grep "/var/games/minetest-server" -q); then
+	if [[ ! -f "$1" ]] || ! (tar tzf "$1"|grep "var/games/minetest-server" -q); then
 		echo "[1;31mNot a minetest backup directory[0m"
 		exit 1
 	fi
