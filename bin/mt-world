@@ -2,6 +2,10 @@
 
 WFILE=/var/games/minetest-server/.minetest/worlds/world/world.mt
 
+if [[ -z "$EDITOR" ]]; then
+	export EDITOR=/usr/bin/nano
+fi
+
 if [[ -z "$*" ]]; then
 	cat "$WFILE"
 	exit
@@ -11,6 +15,7 @@ if [[ "$1" =~ --help ]]; then
 cat <<EOHELP
 
 	$0 # dump world data to console
+	$0 edit # edit the world file using configured \$EDITOR
 	$0 NEWVAL [MOD NAMES ...] # set value for mods. All if no mod specified
 
 EOHELP
@@ -26,7 +31,9 @@ function setval {
 
 NEWVAL="$1"; shift
 
-if [[ -z "$*" ]]; then
+if [[ "$NEWVAL" = edit ]]; then
+	"$EDITOR" "$WFILE"
+elif [[ -z "$*" ]]; then
 	setval "$NEWVAL"
 else
 	for mod in "$@"; do
