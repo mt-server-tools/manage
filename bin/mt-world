@@ -3,7 +3,7 @@
 WFILE=/var/games/minetest-server/.minetest/worlds/world/world.mt
 
 if [[ -z "$EDITOR" ]]; then
-	export EDITOR=/usr/bin/nano
+	export EDITOR=/bin/nano
 fi
 
 if [[ -z "$*" ]]; then
