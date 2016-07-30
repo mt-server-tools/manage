@@ -5,6 +5,7 @@
 MT_UDATA=/var/games/minetest-server/.minetest
 MT_GDATA=/usr/share/games/minetest
 MT_LDATA=/var/log/minetest
+MT_CONF=/etc/minetest
 
 if [[ -z "$*" ]]; then
 cat <<EOHELP
@@ -19,28 +20,35 @@ exit
 fi
 
 if [[ "$1" = backup ]]; then
-	aname="$(date "+%F-%T").tar.gz"
-	tar czf "$aname" -C / "$MT_DATA" "$MT_GDATA" "$MT_LDATA"
-	echo "Data saved at $aname"
+	aname="$(date "+%F-%T"|sed -r 's/[^[0-9-]+//g').tar.gz"
+	bin/mtctl stop || exit 1
+	(tar czf "$aname" -C / "$MT_UDATA" "$MT_GDATA" "$MT_LDATA" "$MT_CONF" &&
+		echo "[1;32mData saved at $aname[0m") ||
+		{ echo "[1;31mBackup failed[0m" ; exit 1 ; }
+	bin/mtctl start
 elif [[ "$1" = restore ]]; then
 	shift
 	if [[ -z "$*" ]]; then
-		echo "Please specify an archive file"
+		echo "[1;31mPlease specify an archive file[0m"
 		exit 1
 	fi
 
-	if ! (tar tzf "$1"|grep "/var/games/minetest-server" -q); then
-		echo "Not a minetest backup directory"
+	if [[ ! -f "$1" ]] || ! (tar tzf "$1"|grep "var/games/minetest-server" -q); then
+		echo "[1;31mNot a minetest backup directory[0m"
 		exit 1
 	fi
 
-	"$0" backup # backup existing config just in case!
+	"$0" backup || { echo "[01;33mABORT[0m" ; exit 1; }  # backup existing config just in case!
+	bin/mtctl stop
 	set -e
-	cd "$MT_GDATA" ; rm -r ./*
-	cd "$MT_UDATA" ; rm -r ./*
-	cd "$MT_LDATA" ; rm -r ./*
+	(cd "$MT_GDATA" ; rm -r ./* )
+	(cd "$MT_UDATA" ; rm -r ./* )
+	(cd "$MT_LDATA" ; rm -r ./* )
+	(cd "$MT_CONF" ; rm -r ./* )
 
 	tar xzf "$1" -C /
+	bin/mtctl start
 else
-	echo "Invalid option: $1"
+	echo "[1;31mInvalid option: $1[0m"
+	exit 1
 fi

@@ -1,14 +1,37 @@
 #!/bin/bash
 
-# Central command for all things
+function checkforplayers {
+	playerlist="$(grep -P -o "List of players:.+" /var/log/minetest/minetest.log|sed "s/List of players: //"|tail -n 1)"
+
+	if [[ -n "$playerlist" ]] || [[ "$*" =~ '-y' ]]; then
+		echo "Players: $playerlist"
+		if [[ "$*" =~ "-n" ]]; then exit 1; fi
+		read -p "It seems there are still players online - are you sure? [y/N]> "
+		if [[ ! "$REPLY" =~ $(echo '^(yes|YES|y|Y)$') ]]; then
+			exit 1
+		fi
+	fi
+	return 0
+}
 
 if [[ -z "$*" ]]; then
-cat <<EOF
-Available commands:
-
-* modset -- install from a mod set file
-* aptmod -- search for mods in repo
-* drastic -- do drastic things
-EOF
-exit
+	echo "No action specified. Actions: stop, start, restart. Specify -y to force restart without prompt, specify -n to abort restart without prompt"
+	exit 1
 fi
+
+action="$1" ; shift
+echo "Action: $action"
+case "$action" in
+	stop)
+		checkforplayers "$@" && systemctl stop minetest-server
+		;;
+	start)
+		systemctl start minetest-server
+		;;
+	restart)
+		checkforplayers "$@" && systemctl restart minetest-server
+		;;
+esac
+
+sleep 3
+journalctl -xe -u minetest-server|tail -n 20
