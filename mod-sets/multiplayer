@@ -2,10 +2,23 @@
 
 # Mods you will want for multiplayer
 
+# Protection
 https://github.com/tenplus1/protector
+
+# Send messages and items to people
 https://github.com/minetest-mods/homedecor_modpack inbox
-https://github.com/Bad-Command/vendor vendor
-https://github.com/Bad-Command/money2 money2
+
+# Sell wares
+https://github.com/everamzah/shop
+
+# Make displayable books
+https://github.com/everamzah/books
+
+# Take player back to spawn
+https://github.com/minetest-mods/spawn_command
 
 # Alternative: smartshops (is ZIP)
 # https://forum.minetest.net/download/file.php?id=6133
+
+# Shareable and hidden chests
+https://github.com/minetest-mods/more_chests
