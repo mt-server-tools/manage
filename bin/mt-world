@@ -18,6 +18,8 @@ cat <<EOHELP
 	$0 edit # edit the world file using configured \$EDITOR
 	$0 NEWVAL [MOD NAMES ...] # set value for mods. All if no mod specified
 
+NEWVAL must be "false" or "true"
+
 EOHELP
 fi
 
@@ -30,6 +32,11 @@ function setval {
 }
 
 NEWVAL="$1"; shift
+
+if [[ ! "$NEWAL" =~ $(echo '^(false|true|edit)$') ]]; then
+	echo "[1;31mValue to set must be 'true' or 'false'[0m"
+	exit 1
+fi
 
 if [[ "$NEWVAL" = edit ]]; then
 	"$EDITOR" "$WFILE"
