@@ -33,7 +33,7 @@ function setval {
 
 NEWVAL="$1"; shift
 
-if [[ ! "$NEWAL" =~ $(echo '^(false|true|edit)$') ]]; then
+if [[ ! "$NEWVAL" =~ $(echo '^(false|true|edit)$') ]]; then
 	echo "[1;31mValue to set must be 'true' or 'false'[0m"
 	exit 1
 fi
