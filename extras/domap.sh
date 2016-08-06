@@ -4,7 +4,7 @@ set -eu
 
 mapper=/usr/local/bin/mtmapper-rogier
 tempworld=tmp_mtworld
-colorsfile=/root/mt-manage/extras/colors.txt
+colorsfile=/etc/minetest/colors.txt
 
 if [[ ! -f "$mapper" ]]; then
 	echo "[1;31mAdvanced mapper not found. Please run extras/installmapper.sh[0m"

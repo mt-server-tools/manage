@@ -9,3 +9,4 @@ cp bin/* /usr/local/bin
 
 cp mtmanage.conf /etc/minetest/mtmanage.conf
 chmod 644 /etc/minetest/mtmanage.conf
+cp extras/colors.txt /etc/minetest/colors.txt
