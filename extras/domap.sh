@@ -13,13 +13,13 @@ fi
 
 cd /root/mt-manage
 
-bin/mtctl stop --force
+bin/mtctl stop --force --quiet
 
 echo "[1;34mCopying world data ...[0m"
 cp -r /var/games/minetest-server/.minetest/worlds/world "$tempworld"
 worldcopy=$?
 
-bin/mtctl start
+bin/mtctl start --quiet
 
 if [[ "$worldcopy" = 0 ]]; then
 	echo "[1;34mGenerating image from $PWD/$tempworld using "$colorsfile" ...[0m"
