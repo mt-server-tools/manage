@@ -121,8 +121,11 @@ fi
 # at this point, system could still be debian; would it still succeed?
 echo "deb http://ppa.launchpad.net/minetestdevs/stable/ubuntu $distro main" >> "$ppafile"
 echo "deb-src http://ppa.launchpad.net/minetestdevs/stable/ubuntu $distro main" >> "$ppafile"
+
+apt-key adv --keyserver keyserver.ubuntu.com --recv-keys "D3DF85B5E00DD3EEEC00C1950CD0F565F8CDAB41"
+
 echo "deb http://mmod.infinitypfm.org/ mmrepo main" >> "$ppafile"
-wget --quiet -O - http://mmod.infinitypfm.org/mmrepo.key | sudo apt-key add -
+wget --quiet -O - http://mmod.infinitypfm.org/mmrepo.key | apt-key add -
 
 {
 apt-get update && if [[ -f "$(which minetest 2>/dev/null)" ]]; then
