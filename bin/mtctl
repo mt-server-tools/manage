@@ -1,37 +1,53 @@
 #!/bin/bash
 
-function checkforplayers {
-	playerlist="$(grep -P -o "List of players:.+" /var/log/minetest/minetest.log|sed "s/List of players: //"|tail -n 1)"
+set -ue
 
-	if [[ -n "$playerlist" ]] || [[ "$*" =~ '-y' ]]; then
-		echo "Players: $playerlist"
-		if [[ "$*" =~ "-n" ]]; then exit 1; fi
+QUIETFLAG=
+if [[ "$*" =~ --silent ]]; then
+	QUIETFLAG=-q
+fi
+
+
+function checkforplayers {
+	playerlist="$(grep -P -o "(^\s*Separator\s*$|List of players:.+)" /var/log/minetest/minetest.log|sed "s/List of players: //"|tail -n 1)"
+
+	if [[ -n "$playerlist" ]] && [[ ! "$playerlist" =~ $(echo '^\s*Separator\s*$') ]] ; then
+		echo "Players: [1;33m$playerlist[0m"
+		if [[ ! "$*" =~ "--force" ]]; then return 0; fi
+
+		if [[ "$*" =~ "--bail" ]]; then return 1; fi
 		read -p "It seems there are still players online - are you sure? [y/N]> "
 		if [[ ! "$REPLY" =~ $(echo '^(yes|YES|y|Y)$') ]]; then
-			exit 1
+			return 1
 		fi
 	fi
 	return 0
 }
 
 if [[ -z "$*" ]]; then
-	echo "No action specified. Actions: stop, start, restart. Specify -y to force restart without prompt, specify -n to abort restart without prompt"
+	echo "No action specified. Actions: stop, start, restart."
+	echo ""
+	echo "Specify --force to *force* restart without prompt"
+	echo "Specify --bail to  *abort* restart without prompt"
 	exit 1
 fi
 
 action="$1" ; shift
 echo "Action: $action"
+
 case "$action" in
 	stop)
-		checkforplayers "$@" && systemctl stop minetest-server
+		checkforplayers "$@" && systemctl stop minetest-server "$QUIETFLAG"
 		;;
 	start)
-		systemctl start minetest-server
+		systemctl start minetest-server "$QUIETFLAG"
 		;;
 	restart)
-		checkforplayers "$@" && systemctl restart minetest-server
+		checkforplayers "$@" && systemctl restart minetest-server "$QUIETFLAG"
 		;;
 esac
 
-sleep 3
-journalctl -xe -u minetest-server|tail -n 20
+if [[ -n "$QUIETFLAG" ]]; then
+	sleep 4
+	tail -n 20 /var/log/minetest/minetest.log
+fi
