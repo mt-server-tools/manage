@@ -13,12 +13,16 @@ function checkforplayers {
 
 	if [[ -n "$playerlist" ]] && [[ ! "$playerlist" =~ $(echo '^\s*Separator\s*$') ]] ; then
 		echo "Players: [1;33m$playerlist[0m"
-		if [[ ! "$*" =~ "--force" ]]; then return 0; fi
 
 		if [[ "$*" =~ "--bail" ]]; then return 1; fi
-		read -p "It seems there are still players online - are you sure? [y/N]> "
-		if [[ ! "$REPLY" =~ $(echo '^(yes|YES|y|Y)$') ]]; then
-			return 1
+
+		if [[ ! "$*" =~ "--force" ]]; then
+			read -p "It seems there are still players online - are you sure? [y/N]> "
+			if [[ ! "$REPLY" =~ $(echo '^(yes|YES|y|Y)$') ]]; then
+				return 1
+			fi
+		else
+			return 0
 		fi
 	fi
 	return 0
@@ -37,13 +41,13 @@ echo "Action: $action"
 
 case "$action" in
 	stop)
-		checkforplayers "$@" && systemctl stop minetest-server "$QUIETFLAG"
+		checkforplayers "$@" && systemctl stop minetest-server $QUIETFLAG
 		;;
 	start)
-		systemctl start minetest-server "$QUIETFLAG"
+		systemctl start minetest-server $QUIETFLAG
 		;;
 	restart)
-		checkforplayers "$@" && systemctl restart minetest-server "$QUIETFLAG"
+		checkforplayers "$@" && systemctl restart minetest-server $QUIETFLAG
 		;;
 esac
 
