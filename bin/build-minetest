@@ -19,12 +19,16 @@ git clone https://github.com/minetest/minetest_game
 
 cd ..
 
-cmake -DRUN_IN_PLACE=1 -DBUILD_SERVER=1 -DENABLE_CURL=1 -DENABLE_CURSES=1
+cmake -DRUN_IN_PLACE=1 -DBUILD_SERVER=1 -DENABLE_CURL=1 -DENABLE_CURSES=0 -DENABLE_REDIS=0
 
 make -j "$NUMPROCESSORS"
 # ------- do not leave C compiler lying around on a publicly accessible machine!
 # what else?
 sudo apt-get remove gcc
+
+# TODO adapt the mt-* tools to load the appropriate configs and paths
+# add a while loop shim that checks for restart time - if less than 15 sec then abort loop
+
 
 # add support for deploying an existing world file
 # add support for building a mtmanage.conf

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+cd /root/minetest/bin/
+
+while true; do
+	d1=$(date "+%s")
+	./minetestserver --config /etc/minetest/minetest.conf
+	d2=$(date "+%s")
+	if [[ "$(( $d2 - $d1 ))" -lt 15 ]]; then
+		echo "[1;31mFAILED TO START[0m"
+		exit 127
+	fi
+done
