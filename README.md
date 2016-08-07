@@ -19,11 +19,12 @@ Make it easy to manage the minetest server throught its lifetime.
 ## Features
 
 * [Quickly get a minetest server](install_guide/README.md) set up
+	* [Extensively annotated guide](install_guide/extended_guide.md) on configuring a Ubuntu server from scratch
 * Install the latest minetest from official PPA, configures swap (optional), activate firewall `installminetest`
+	* Coming soon: build the absolute latest minetest, from source
 * Mod-sets installation script with `mt-installmods`
 * Minetest configuration command to one-line edit configuration options `mt-config`
 * Single-command activate/deactivate mods with `mt-world`
-* [Extensively annotated guide](install_guide/extended_guide.md) on configuring a Ubuntu server from scratch
 * Installs `mogray5`'s DEB repository for mods allowing you to install using `apt-get` directly
 
 ## Mod Sets
@@ -34,6 +35,8 @@ Build your own mod spec, and make a pull request to be included!
 
 * text-based repo database files
 * currently requires mod to have a Git URL (github, gitlab, bitbucket, over SSH or HTTPS, etc...)
+* re-run the mt-installmods command against the same mod sets to update all mods!
+	* can be set as a cron
 
 ## To Do
 
