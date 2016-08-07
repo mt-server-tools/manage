@@ -4,16 +4,18 @@ NUMPROCESSORS=$(cat /proc/cpuinfo | grep -P '^processor\s*:' -c)
 
 # Build minetest from source
 
-sudo apt-get update && sudo apt-get install git cmake build-essential # TODO add the other dependencies
+sudo apt-get update && sudo apt-get install build-essential cmake git libirrlicht-dev libbz2-dev libgettextpo-dev libfreetype6-dev libpng12-dev libjpeg-dev libxxf86vm-dev libgl1-mesa-dev libsqlite3-dev libogg-dev libvorbis-dev libopenal-dev libhiredis-dev libcurl3-dev libncurses5-dev
 
-sudo apt-get install build-essential cmake git libirrlicht-dev libbz2-dev libgettextpo-dev libfreetype6-dev libpng12-dev libjpeg-dev libxxf86vm-dev libgl1-mesa-dev libsqlite3-dev libogg-dev libvorbis-dev libopenal-dev libhiredis-dev libcurl3-dev libncurses5-dev
+mkdir /etc/minetest
+mkdir /var/log/minetest
+chown minetest:minetest /var/log/minetest
 
 adduser minetest
 cd ~minetest/
 
-git clone https://github.com/minetest/minetest
+git clone https://github.com/minetest/minetest .minetest
 
-cd minetest/games
+cd .minetest/games
 
 git clone https://github.com/minetest/minetest_game
 
@@ -36,4 +38,4 @@ sudo apt-get remove gcc
 
 
 cd ~minetest
-chown minetest:minetest minetest
+chown minetest:minetest -R .minetest

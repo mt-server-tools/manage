@@ -1,13 +1,23 @@
 #!/bin/bash
 
-cd /root/minetest/bin/
+if [[ ! "$USER" = minetest ]]; then
+	su - -c "$0" "$@"
+	exit
+fi
+
+cd .minetest/bin
+
+if [[ ! -d /var/log/minetest ]]; then
+	mkdir /var/log/minetest
+	chown minetest:minetest /var/log/minetest
+fi
 
 while true; do
 	d1=$(date "+%s")
-	./minetestserver --config /etc/minetest/minetest.conf
+	./minetestserver --config /etc/minetest/minetest.conf --logfile /var/log/minetest/minetest.log
 	d2=$(date "+%s")
 	if [[ "$(( $d2 - $d1 ))" -lt 15 ]]; then
-		echo "[1;31mFAILED TO START[0m"
+		echo "[1;31mRESTARTED TOO FAST - aborting[0m"
 		exit 127
 	fi
 done
