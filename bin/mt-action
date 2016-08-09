@@ -4,14 +4,22 @@ use strict;
 use warnings;
 use POSIX;
 
-# Radius, in nodes
-my $radius = 5;
+if ($#ARGV < 2) {
+	print "\nUsage: action_around.pl [1;34mPOSX POSY POSZ [RADIUS][0m\nDefault radius range is 10\n\n";
+	exit (0);
+}
 
 # Central coords
-#-169,2,122
-my $x0 = 0;
-my $y0 = 0;
-my $z0 = 0;
+my $x0 = int($ARGV[0]) or exit(1);
+my $y0 = int($ARGV[1]) or exit(1);
+my $z0 = int($ARGV[2]) or exit(1);
+
+# Radius, in nodes
+my $radius = 10;
+
+if ($#ARGV >= 3) {
+	$radius = int($ARGV[3]) or exit(1);
+}
 
 # detect place, dig, take, punch, punched by
 
@@ -22,13 +30,11 @@ sub inrange {
 	my $py = $_[1];
 	my $pz = $_[2];
 	# (x - x0)² + (y - y0)² + (z - z0)² <= r²
-	# printf("Processing range for %s,%s,%s\n",$px,$py,$pz);
 	
 	return ($px - $x0)**2 + ($py - $y0)**2 + ($pz - $z0)**2 <= $radius ** 2;
 }
 
-while (<>) {
-	# print "Processing $_";
+while (<STDIN>) {
 	if ($_ =~ m/at \(([0-9.,-]+),([0-9.,-]+),([0-9.,-]+)\)/ ) {
 		my $px = int(floor($1));
 		my $py = int(floor($2));
