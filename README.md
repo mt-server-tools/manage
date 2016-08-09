@@ -2,6 +2,8 @@
 
 Tools for managing a minetest server on Ubuntu
 
+*NOTE: this tool chain is going to have a massive overhaul in favour of building a minetest server from source, with the goal of supporting Debian family, Fedora family, and Arch. The mods installation tools will be re-written in python to support Mac and Windows, without git. A server component to convert git repositories into ZIP files will also be added.*
+
 ## What is minetest
 
 [Minetest](http://www.minetest.net) is an open-source competitor to Minecraft. What it lacks in spit-polish, it makes up in ease of modding and extensibility.
@@ -21,11 +23,11 @@ Make it easy to manage the minetest server throught its lifetime.
 * [Quickly get a minetest server](install_guide/README.md) set up
 	* [Extensively annotated guide](install_guide/extended_guide.md) on configuring a Ubuntu server from scratch
 * Install the latest minetest from official PPA, configures swap (optional), activate firewall `installminetest`
-	* Coming soon: build the absolute latest minetest, from source
+	* Alternatively, build the absolute latest minetest, from source
 * Mod-sets installation script with `mt-installmods`
 * Minetest configuration command to one-line edit configuration options `mt-config`
 * Single-command activate/deactivate mods with `mt-world`
-* Installs `mogray5`'s DEB repository for mods allowing you to install using `apt-get` directly
+* Build the CPP minetest mapper (Rogier-5 fork) from source
 
 ## Mod Sets
 
