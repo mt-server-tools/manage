@@ -10,6 +10,10 @@ MT_CONF=/etc/minetest/minetest.conf
 MT_GDATA=/usr/share/games/minetest/
 MT_UDATA=/var/games/minetest-server/.minetest/
 
+if [[ -z "${EDITOR+x}" ]]; then
+	EDITOR=/bin/nano # works on Ubuntu. But on Debian?
+fi
+
 function printhelp {
 cat <<EOHELP
 Change Minetest settings
@@ -102,6 +106,11 @@ EOHELP
 }
 
 if [[ "$*" =~ --help ]]; then printhelp; exit 0; fi
+
+if [[ -n "$*" ]] && [[ "$1" = edit ]]; then
+	"$EDITOR" "$MT_CONF"
+	exit $?
+fi
 
 function infoe {
 	echo "[1;32m$*[0m" 1>&2

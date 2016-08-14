@@ -47,7 +47,7 @@ You now have a bare-bones minetest server you can connect to and play on - but d
 
 To use a mod-set
 
-	bin/mt-installmods $MODSETFILE
+	bin/mt-installmods FILS ...
 
 There are example mod set files in [mod-sets](../mod-sets)
 
@@ -58,7 +58,7 @@ For example:
 
 To install individual mods from `mogray5`'s mods repository
 
-	apt-cache search minetest $MODNAME
+	apt-cache search minetest MODNAME
 
 Then use `apt-get install $PKG` to install the appropriate package
 
@@ -114,7 +114,7 @@ To monitor resources live, use htop
 
 To monitor chat whilst not connected to the game, execute the following on the server
 
-	tail -f /var/log/minetest.log | grep CHAT
+	tail -f /var/log/minetest.log | grep CHAT:
 
 To monitor players connecting and disconnecting
 
