@@ -3,6 +3,9 @@
 
 https://github.com/minetest-mods/maptools
 
+# Fix map issues (flow and lighting)
+https://github.com/minetest-mods/mapfix
+
 # Kickers
 https://github.com/minetest-mods/chat_anticurse
 https://github.com/NathanSalapat/kickafk
