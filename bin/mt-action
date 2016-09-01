@@ -36,9 +36,9 @@ sub inrange {
 
 while (<STDIN>) {
 	if ($_ =~ m/(at|at protected position) \(([0-9.,-]+),([0-9.,-]+),([0-9.,-]+)\)/ ) {
-		my $px = int(floor($1));
-		my $py = int(floor($2));
-		my $pz = int(floor($3));
+		my $px = int(floor($2));
+		my $py = int(floor($3));
+		my $pz = int(floor($4));
 		
 		if ( inrange($px,$py,$pz) ) {
 			print $_;
