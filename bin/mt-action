@@ -5,7 +5,7 @@ use warnings;
 use POSIX;
 
 if ($#ARGV < 2) {
-	print "\nUsage: action_around.pl [1;34mPOSX POSY POSZ [RADIUS][0m\nDefault radius range is 10\n\n";
+	print "\nUsage: mt-action [1;34mPOSX POSY POSZ [RADIUS][0m\nDefault radius range is 10\n\n";
 	exit (0);
 }
 
@@ -23,7 +23,7 @@ if ($#ARGV >= 3) {
 
 # detect place, dig, take, punch, punched by
 
-# grep -P 'at \(.+?\)'|sed -r 's/^.+ACTION\[ServerThread\]: //'
+# grep -P '(at|at protected position) \(.+?\)'|sed -r 's/^.+ACTION\[ServerThread\]: //'
 
 sub inrange {
 	my $px = $_[0];
@@ -35,7 +35,7 @@ sub inrange {
 }
 
 while (<STDIN>) {
-	if ($_ =~ m/at \(([0-9.,-]+),([0-9.,-]+),([0-9.,-]+)\)/ ) {
+	if ($_ =~ m/(at|at protected position) \(([0-9.,-]+),([0-9.,-]+),([0-9.,-]+)\)/ ) {
 		my $px = int(floor($1));
 		my $py = int(floor($2));
 		my $pz = int(floor($3));
