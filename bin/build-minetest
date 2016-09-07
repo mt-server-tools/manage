@@ -1,19 +1,40 @@
 #!/bin/bash
 
 # $(cat /proc/cpuinfo | grep -P '^processor\s*:' -c)
-# TODO make this a configurable option
+
+# TODO make these configurable
+
+TARGETDIR=minetest-"$(date "+%F")"
 NUMPROCESSORS=1
 RMCOMPILER=1
+
+# unlikely to change
 MTGITURL=https://github.com/minetest/minetest
 MTGAMEGITURL=https://github.com/minetest/minetest_game
 
 # Build minetest from source
 
 echo "[1;33mInstalling build components[0m"
-sudo apt-get update && sudo apt-get install build-essential cmake git libirrlicht-dev libbz2-dev libgettextpo-dev libfreetype6-dev libpng12-dev libjpeg-dev libxxf86vm-dev libgl1-mesa-dev libsqlite3-dev libogg-dev libvorbis-dev libopenal-dev libhiredis-dev libcurl3-dev libncurses5-dev
 
-git clone "$MTGITURL" minetest
-cd minetest
+# run install
+REMOVALCMD=echo You must remove:
+if which apt-get >/dev/null; then # should work for both Debian and Ubuntu
+	sudo apt-get update && sudo apt-get install build-essential cmake git libirrlicht-dev libbz2-dev libgettextpo-dev libfreetype6-dev libpng12-dev libjpeg-dev libxxf86vm-dev libgl1-mesa-dev libsqlite3-dev libogg-dev libvorbis-dev libopenal-dev libhiredis-dev libcurl3-dev libncurses5-dev
+	REMOVALCMD=apt-get remove gcc
+elif which yum >/dev/null && grep CentOS /etc/lsb-release -q; then # check for Fedora too
+	echo "[1;31mCentOS not supported yet[0m"
+	exit 2
+elif which pacman >/dev/null; then
+	echo "[1;31mArch not supported yet[0m"
+	exit 2
+else
+	echo "[1;31mYour distro is not supported yet[0m"
+	exit 2
+fi
+
+
+git clone "$MTGITURL" "$TARGETDIR"
+cd "$TARGETDIR"
 
 mkdir games/
 cd games
@@ -29,7 +50,7 @@ if [[ "$RMCOMPILER" == 1 ]]; then
 	# ------- do not leave C compiler lying around on an Internet-attached machine!
 	# what else?
 	echo "[1;33mRemoving compiler[0m"
-	sudo apt-get remove gcc
+	sudo $REMOVALCMD
 fi
 
 # TODO adapt the mt-* tools to load the appropriate configs and paths
