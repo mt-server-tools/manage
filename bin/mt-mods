@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# TODO - seek mods dir in ./
+# if not available request -d option to specify minetest dir
+#
+# TODO - support ZIP files
+# prefer git
+
 mtdir=
 
 function warne {
