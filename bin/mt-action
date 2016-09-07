@@ -5,7 +5,7 @@ use warnings;
 use POSIX;
 
 if ($#ARGV < 2) {
-	print "\nUsage: mt-action [1;34mPOSX POSY POSZ [RADIUS][0m\nDefault radius range is 10\n\n";
+	print "\nUsage: mt-action [1;34mPOSX POSY POSZ [RADIUS][0m\nDefault radius range is 10\n\nReads from stdin\n\n";
 	exit (0);
 }
 
