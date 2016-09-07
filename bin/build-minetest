@@ -1,41 +1,38 @@
 #!/bin/bash
 
-NUMPROCESSORS=$(cat /proc/cpuinfo | grep -P '^processor\s*:' -c)
+# $(cat /proc/cpuinfo | grep -P '^processor\s*:' -c)
+# TODO make this a configurable option
+NUMPROCESSORS=1
+RMCOMPILER=1
+MTGITURL=https://github.com/minetest/minetest
+MTGAMEGITURL=https://github.com/minetest/minetest_game
 
 # Build minetest from source
 
+echo "[1;33mInstalling build components[0m"
 sudo apt-get update && sudo apt-get install build-essential cmake git libirrlicht-dev libbz2-dev libgettextpo-dev libfreetype6-dev libpng12-dev libjpeg-dev libxxf86vm-dev libgl1-mesa-dev libsqlite3-dev libogg-dev libvorbis-dev libopenal-dev libhiredis-dev libcurl3-dev libncurses5-dev
 
-mkdir /etc/minetest
-mkdir /var/log/minetest
-chown minetest:minetest /var/log/minetest
+git clone "$MTGITURL" minetest
+cd minetest
 
-adduser minetest
-cd ~minetest/
-
-git clone https://github.com/minetest/minetest .minetest
-
-cd .minetest/games
-
-git clone https://github.com/minetest/minetest_game
-
+mkdir games/
+cd games
+git clone "$MTGAMEGITURL"
 cd ..
 
-cmake -DRUN_IN_PLACE=1 -DBUILD_SERVER=1 -DENABLE_CURL=1 -DENABLE_CURSES=0 -DENABLE_REDIS=0
+cmake -DRUN_IN_PLACE=1 -DBUILD_SERVER=1 -DENABLE_CURL=1 -DENABLE_CURSES=0 -DENABLE_REDIS=0 -DENABLE_LEVELDB=1
 
-make -j "$NUMPROCESSORS"
-# ------- do not leave C compiler lying around on a publicly accessible machine!
-# what else?
-sudo apt-get remove gcc
+# Make game, if successful, remove the make configuration so next build is fresh
+make -j "$NUMPROCESSORS" && rm -r CMakeFiles
+
+if [[ "$RMCOMPILER" == 1 ]]; then
+	# ------- do not leave C compiler lying around on an Internet-attached machine!
+	# what else?
+	echo "[1;33mRemoving compiler[0m"
+	sudo apt-get remove gcc
+fi
 
 # TODO adapt the mt-* tools to load the appropriate configs and paths
-# add a while loop shim that checks for restart time - if less than 15 sec then abort loop
+# add support for adding a systemd service file
 
 
-# add support for deploying an existing world file
-# add support for building a mtmanage.conf
-# add support for adding a systemd service file ?
-
-
-cd ~minetest
-chown minetest:minetest -R .minetest
