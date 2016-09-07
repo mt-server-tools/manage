@@ -1,0 +1,19 @@
+#!/bin/bash
+
+if [[ "$(free|grep -i swap|awk '{print $2}')" -lt 1 ]]; then
+	swapsize=$(uask "You have no swap - please specify the # of MB of swap to configure, or leave emtpy to configure no swap (eg. 1000 for a gigabyte)")
+	if [[ -n "$swapsize" ]]; then
+		(
+		mkdir /swaps
+		cd /swaps
+		dd if=/dev/zero of="./swap1" bs=$(( 1024 * 1024 )) count=$swapsize && {
+			chown root:root ./swap1
+			chmod 600 ./swap1
+			mkswap ./swap1
+			swapon ./swap1
+			export $(blkid swap1|grep -o -P 'UUID\S+')
+			echo "UUID=$UUID none swap defaults 0 0" >> /etc/fstab
+		}
+		)
+	fi
+fi
