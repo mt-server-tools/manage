@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# backup executables, perform new build
+# perhaps store the selected processor count in minetest.conf during install so it can be referenced here?
+# scour mods, games and textures dirs for git repos to update?

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+# Convert SQLite to LEVELDB, adjust the conf for network variables (maybe do network speed tests to intelligently adjust)
