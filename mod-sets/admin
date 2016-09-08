@@ -11,4 +11,8 @@ https://github.com/minetest-mods/chat_anticurse
 https://github.com/NathanSalapat/kickafk
 
 # make players agree to the rules
-https://github.com/cheapie/newplayer
+#https://github.com/cheapie/newplayer
+
+# Require new players to enter a keyword
+# (you need to remove "interact" from the minetest.conf default privs)
+https://github.com/ChaosWormz/mt_keyword_interact
