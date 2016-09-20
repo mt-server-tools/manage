@@ -2,6 +2,9 @@
 
 # TODO - make configurable
 MTDIR=./
+RESTARTDELAY=30 # seconds to wait after a failure
+ADMINEMAIL=
+TAILLENGTH=100
 
 mkdir -p "$MTDIR/logs"
 
@@ -12,7 +15,11 @@ while true; do
 	ds=$(date "+%F%T"|sed -r 's/[^0-9]+/-/g')
 	mv "$MTDIR/logs"/minetest.log "$MTDIR/logs"/minetest-"$ds".log
 	if [[ "$(( $d2 - $d1 ))" -lt 15 ]]; then
-		echo "[1;31mRESTARTED TOO FAST - aborting[0m"
-		exit 127
+		echo "[1;31mRESTARTED TOO FAST - waiting $RESTARTDELAY seconds[0m"
+		if [[ -n "$ADMINEMAIL" ]]; then
+			cat -n $TAILLENGTH "$MTDIR/logs"/minetest-"$ds".log | mail -s "Minetest server failure [$PWD]" "$ADMINEMAIL"
+		fi
+		cat -n $TAILLENGTH "$MTDIR/logs"/minetest-"$ds".log
+		sleep $RESTARTDELAY || { echo "[1;31mFAILED SLEEP - aborting"; exit 1 ; }
 	fi
 done
