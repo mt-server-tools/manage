@@ -20,7 +20,7 @@ echo "[1;33mInstalling build components[0m"
 REMOVALCMD=echo You must remove:
 if which apt-get >/dev/null; then # should work for both Debian and Ubuntu
 	sudo apt-get update && sudo apt-get install build-essential cmake git libirrlicht-dev libbz2-dev libgettextpo-dev libfreetype6-dev libpng12-dev libjpeg-dev libxxf86vm-dev libgl1-mesa-dev libsqlite3-dev libogg-dev libvorbis-dev libopenal-dev libhiredis-dev libcurl3-dev libncurses5-dev
-	REMOVALCMD=apt-get remove gcc
+	REMOVALCMD="apt-get remove gcc"
 elif which yum >/dev/null && grep CentOS /etc/lsb-release -q; then # check for Fedora too
 	echo "[1;31mCentOS not supported yet[0m"
 	exit 2
