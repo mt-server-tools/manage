@@ -4,24 +4,35 @@ use strict;
 use warnings;
 use POSIX;
 
-if ($#ARGV < 2) {
-	print "\nUsage: mt-action [1;34mPOSX POSY POSZ [RADIUS][0m\nDefault radius range is 10\n\nReads from stdin\n\n";
+if ($#ARGV < 0 || $#ARGV > 3) {
+	print "\nUsage: mt-action [1;34m{ POSX POSY POSZ | COORDS } [RADIUS][0m\nDefault radius range is 10\n\nExpects log content on stdin\n\n";
 	exit (0);
 }
 
 # Central coords
-my $x0 = int($ARGV[0]) or exit(1);
-my $y0 = int($ARGV[1]) or exit(1);
-my $z0 = int($ARGV[2]) or exit(1);
+my $x0 = $ARGV[0];
+my $y0 = 0;
+my $z0 = 0;
 
 # Radius, in nodes
 my $radius = 10;
 
-if ($#ARGV >= 3) {
-	$radius = int($ARGV[3]) or exit(1);
+if($x0 =~ /(-?[0-9]+),(-?[0-9]+),(-?[0-9]+)/ ) {
+	if ($#ARGV > 0) {$radius = int($ARGV[1]);}
+	$x0 = $1;
+	$y0 = $2;
+	$z0 = $3;
+} else {
+	$x0 = int($ARGV[0]) or exit(1);
+	$y0 = int($ARGV[1]) or exit(1);
+	$z0 = int($ARGV[2]) or exit(1);
+	if ($#ARGV >= 3) {
+		$radius = int($ARGV[3]) or exit(1);
+	}
 }
 
 # detect place, dig, take, punch, punched by
+# add options to filter on entity action, usage action, or node (action dig, punch, punch by)
 
 # grep -P '(at|at protected position) \(.+?\)'|sed -r 's/^.+ACTION\[ServerThread\]: //'
 
@@ -35,7 +46,7 @@ sub inrange {
 }
 
 while (<STDIN>) {
-	if ($_ =~ m/(at|at protected position) \(([0-9.,-]+),([0-9.,-]+),([0-9.,-]+)\)/ ) {
+	if ($_ =~ m/(at|at protected position) \(([0-9.-]+),([0-9.-]+),([0-9.-]+)\)/ ) {
 		my $px = int(floor($2));
 		my $py = int(floor($3));
 		my $pz = int(floor($4));
