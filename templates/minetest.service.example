@@ -1,0 +1,9 @@
+[Unit]
+Description=MTDESCRIPTION
+
+[Service]
+ExecStart=MTEXECUTIONSTRING
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
