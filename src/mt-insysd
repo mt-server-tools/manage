@@ -1,0 +1,8 @@
+#!/bin/bash
+
+### insysd MTDIR Usage:help
+# Install a systemd service for the specified minetest directory
+# Assumes the directory contains its own minetest.conf file
+###/doc
+
+#%include autohelp 
