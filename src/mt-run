@@ -1,0 +1,75 @@
+#!/bin/bash
+
+
+### Minetest Runner Usage:help
+#
+# Run a minetest server manually, with auto restart on failures.
+#
+# Usage:
+#	mt-run [-d MTDIR]
+#
+# MTDIR is the path to the top level directory of a minetest installation. If omitted, uses the current working directory
+#
+# If the server stops or fails, it is immediately restarted -- this includes shutdowns from within the game with the /shutdown command
+#
+# If the server fails too quickly, the script will wait for a given number of seconds (default 60) before attempting to restart again.
+# In this scenario, the admin will also receive an email if one is configured, containing the last few lines of the log file (default 100)
+#
+# The minetest.conf file is expected to live at the top of the MTDIR directory
+#
+# The MTDIR directory is expected to have a bin/ directory containing minetestserver, or for the binary to be configured in minetest.conf (see below)
+#
+###/doc
+
+### Settings Usage:help
+#
+# minetest.conf can hold some extra values to configure mt-run
+#
+# 'mtrun.bin' -- the path to the minetest executable - for example, /usr/bin/minetestserver
+#
+# 'mtrun.failwait' -- the number of seconds to wait until restarting after a restart failure
+#
+# 'mtrun.failwindow' -- if server stops before <mtrun.failwindow> seconds have elapsed, consider it a server failure
+#
+# 'mtrun.email' -- the email address(es) of the person(s) to notify. Must be a space-separated list of email addresses
+#
+# 'mtrun.tail' -- the number of lines at the end of the failure log to include in the email
+#
+###/doc
+
+#%include readargs autohelp kvreader bashout
+
+MTDIR=$(argread 1 -d )
+if [[ -z "$MTDIR" ]]; then MTDIR=./ ; fi
+
+CONFFILE="$MTDIR/minetest.conf"
+
+MTBIN=$(freadkv mtrun.bin "$CONFFILE" "$MTDIR/bin/minetestserver")
+RESTARTDELAY=$(freadkv mtrun.failwait "$CONFFILE" 60) # seconds to wait after a failure
+ADMINEMAIL=$(freadkv mtrun.email "$CONFFILE" )
+TAILLENGTH=$(freadkv mtrun.tail "$CONFFILE" 100)
+FAILWINDOW=$(freadkv mtrun.failwindow "$CONFFILE" 15) # if server stops before $FAILWINDOW seconds have elapsed, consider it a server failure
+SERVERNAME=$(freadkv "server_name" "$CONFFILE" "$HOSTNAME:$PWD")
+
+mkdir -p "$MTDIR/logs"
+
+while true; do
+	d1=$(date "+%s")
+	"$MTBIN" --config "$CONFFILE" --logfile "$MTDIR/logs"/debug.txt
+	d2=$(date "+%s")
+	ds=$(date "+%F%T"|sed -r 's/[^0-9]+/-/g')
+
+	mv "$MTDIR/logs"/debug.txt "$MTDIR/logs"/minetest-"$ds".log
+
+	infoe "========================= Log saved to $MTDIR/logs/minetest-$ds.log"
+
+	if [[ "$(( $d2 - $d1 ))" -lt 15 ]]; then
+		warne "RESTARTED TOO FAST - waiting $RESTARTDELAY seconds"
+		if [[ -n "$ADMINEMAIL" ]]; then
+			# do not quote admin email - could be several addresses
+			tail -n $TAILLENGTH "$MTDIR/logs"/minetest-"$ds".log | mail -s "Minetest server failure [$SERVERNAME]" $ADMINEMAIL
+		fi
+		tail -n $TAILLENGTH "$MTDIR/logs"/minetest-"$ds".log
+		sleep "$RESTARTDELAY" || faile "FAILED SLEEP - aborting" 
+	fi
+done
