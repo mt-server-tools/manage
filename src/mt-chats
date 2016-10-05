@@ -1,0 +1,22 @@
+#!/bin/bash
+
+#%include autohelp
+
+### Search fo Chat in Logs Usage:help
+# Tool to find chat in logs, and player connect/disconnect activity
+#
+# Usage:
+#
+#	mt-chats LOG1 LOG2 ...
+#
+# You can specify plain text files and gzipped log files directly
+###/doc
+
+cmd=cat
+
+for logfile in "$@"; do
+	if [[ "$(file "$logfile")" =~ gzip ]]; then
+		cmd=zcat
+	fi
+	$cmd $logfile |grep -P 'List of players:|PM from|CHAT:' -i -a --color=always
+done|less -R
