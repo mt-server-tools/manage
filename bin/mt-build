@@ -62,6 +62,8 @@ cmake -DRUN_IN_PLACE=1 -DBUILD_SERVER=1 -DENABLE_CURL=1 -DENABLE_CURSES=0 -DENAB
 
 # Make game, if successful, remove the make configuration so next build is fresh
 make -j "$NUMPROCESSORS" && rm -r CMakeFiles/
+EXEDIR=$(dirname "$0")
+cp "$EXEDIR/mt-run" "$TARGETDIR/bin/" # a run-in-place script to be run inside tmux; need to replace with service file
 
 if [[ "$RMCOMPILER" == 1 ]]; then
 	# ------- do not leave C compiler lying around on an Internet-attached machine!
