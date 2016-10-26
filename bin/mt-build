@@ -8,6 +8,17 @@ TARGETDIR=minetest-"$(date "+%F")"
 NUMPROCESSORS=1
 RMCOMPILER=1
 
+# =============================
+if [[ "$*" =~ --help ]]; then
+cat <<EOHELP
+This script will download a fresh minetest and minetest_game and build it with LevelDB support
+
+It will be placed in a ./minetest-\$DATE folder with the current date.
+EOHELP
+exit
+fi
+# =============================
+
 # unlikely to change
 MTGITURL=https://github.com/minetest/minetest
 MTGAMEGITURL=https://github.com/minetest/minetest_game
@@ -17,7 +28,7 @@ MTGAMEGITURL=https://github.com/minetest/minetest_game
 echo "[1;33mInstalling build components[0m"
 
 # run install
-REMOVALCMD=echo You must remove:
+REMOVALCMD="echo You must remove: "
 if which apt-get >/dev/null; then # should work for both Debian and Ubuntu
 	sudo apt-get update && sudo apt-get install build-essential cmake git libirrlicht-dev libbz2-dev libgettextpo-dev libfreetype6-dev libpng12-dev libjpeg-dev libxxf86vm-dev libgl1-mesa-dev libsqlite3-dev libogg-dev libvorbis-dev libopenal-dev libhiredis-dev libcurl3-dev libncurses5-dev
 	REMOVALCMD="apt-get remove gcc"
@@ -32,9 +43,13 @@ else
 	exit 2
 fi
 
-
-git clone "$MTGITURL" "$TARGETDIR"
-cd "$TARGETDIR"
+if [[ ! -d "$TARGETDIR" ]]; then
+	git clone "$MTGITURL" "$TARGETDIR"
+	cd "$TARGETDIR"
+else
+	cd "$TARGETDIR"
+	git pull origin master
+fi
 
 mkdir -p games/
 cd games
@@ -46,7 +61,7 @@ cp minetest.conf.example minetest.conf
 cmake -DRUN_IN_PLACE=1 -DBUILD_SERVER=1 -DENABLE_CURL=1 -DENABLE_CURSES=0 -DENABLE_REDIS=0 -DENABLE_LEVELDB=1
 
 # Make game, if successful, remove the make configuration so next build is fresh
-make -j "$NUMPROCESSORS" && rm -r CMakeFiles
+make -j "$NUMPROCESSORS" && rm -r CMakeFiles/
 
 if [[ "$RMCOMPILER" == 1 ]]; then
 	# ------- do not leave C compiler lying around on an Internet-attached machine!
@@ -55,3 +70,20 @@ if [[ "$RMCOMPILER" == 1 ]]; then
 	sudo $REMOVALCMD
 fi
 
+if [[ "$(free|grep -i swap|awk '{print $2}')" -lt 1 ]]; then
+	swapsize=$(uask "You have no swap - please specify the # of MB of swap to configure (eg. 1000 for a gigabyte), or leave emtpy to configure no swap.")
+	if [[ "$swapsize" =~ $(echo '^[0-9]+$') ]]; then
+		(
+		mkdir /swaps
+		cd /swaps
+		dd if=/dev/zero of="./swap1" bs=$(( 1024 * 1024 )) count=$swapsize && {
+			chown root:root ./swap1
+			chmod 600 ./swap1
+			mkswap ./swap1
+			swapon ./swap1
+			export $(blkid swap1|grep -o -P 'UUID=\S+'|sed 's/"//g')
+			echo "$UUID swap swap defaults 0 0" >> /etc/fstab
+		}
+		)
+	fi
+fi
