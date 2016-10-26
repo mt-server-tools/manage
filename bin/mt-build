@@ -30,7 +30,7 @@ echo "[1;33mInstalling build components[0m"
 # run install
 REMOVALCMD="echo You must remove: "
 if which apt-get >/dev/null; then # should work for both Debian and Ubuntu
-	sudo apt-get update && sudo apt-get install build-essential cmake git libirrlicht-dev libbz2-dev libgettextpo-dev libfreetype6-dev libpng12-dev libjpeg-dev libxxf86vm-dev libgl1-mesa-dev libsqlite3-dev libogg-dev libvorbis-dev libopenal-dev libhiredis-dev libcurl3-dev libncurses5-dev
+	sudo apt-get update && sudo apt-get install build-essential cmake git libirrlicht-dev libbz2-dev libgettextpo-dev libfreetype6-dev libpng12-dev libjpeg-dev libxxf86vm-dev libgl1-mesa-dev libsqlite3-dev libogg-dev libvorbis-dev libopenal-dev libhiredis-dev libcurl3-dev libncurses5-dev libleveldb-dev libleveldb1v5
 	REMOVALCMD="apt-get remove gcc"
 elif which yum >/dev/null && grep CentOS /etc/lsb-release -q; then # check for Fedora too
 	echo "[1;31mCentOS not supported yet[0m"
@@ -63,7 +63,7 @@ cmake -DRUN_IN_PLACE=1 -DBUILD_CLIENT=0 -DBUILD_SERVER=1 -DENABLE_CURL=1 -DENABL
 # Make game, if successful, remove the make configuration so next build is fresh
 make -j "$NUMPROCESSORS" && rm -r CMakeFiles/
 EXEDIR=$(dirname "$0")
-cp "$EXEDIR/mt-run" "$TARGETDIR/bin/" # a run-in-place script to be run inside tmux; need to replace with service file
+cp "../$EXEDIR/mt-run" "bin/" # a run-in-place script to be run inside tmux; need to replace with service file
 
 if [[ "$RMCOMPILER" == 1 ]]; then
 	# ------- do not leave C compiler lying around on an Internet-attached machine!
