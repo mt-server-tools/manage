@@ -58,7 +58,7 @@ cd ..
 cp minetest.conf.example minetest.conf
 
 # TODO - put these build options in mt-manage.conf
-cmake -DRUN_IN_PLACE=1 -DBUILD_SERVER=1 -DENABLE_CURL=1 -DENABLE_CURSES=0 -DENABLE_REDIS=0 -DENABLE_LEVELDB=1
+cmake -DRUN_IN_PLACE=1 -DBUILD_CLIENT=0 -DBUILD_SERVER=1 -DENABLE_CURL=1 -DENABLE_CURSES=0 -DENABLE_REDIS=0 -DENABLE_LEVELDB=1
 
 # Make game, if successful, remove the make configuration so next build is fresh
 make -j "$NUMPROCESSORS" && rm -r CMakeFiles/
