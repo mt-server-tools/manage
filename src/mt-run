@@ -48,14 +48,20 @@ MTBIN=$(freadkv mtrun.bin "$CONFFILE" "$MTDIR/bin/minetestserver")
 RESTARTDELAY=$(freadkv mtrun.failwait "$CONFFILE" 60) # seconds to wait after a failure
 ADMINEMAIL=$(freadkv mtrun.email "$CONFFILE" )
 TAILLENGTH=$(freadkv mtrun.tail "$CONFFILE" 100)
+TERMMODE=$(freadkv mtrun.terminal "$CONFFILE" "false")
 FAILWINDOW=$(freadkv mtrun.failwindow "$CONFFILE" 15) # if server stops before $FAILWINDOW seconds have elapsed, consider it a server failure
 SERVERNAME=$(freadkv "server_name" "$CONFFILE" "$HOSTNAME:$PWD")
+
+TERMSTRING=""
+if [[ "$TERMMODE" == "true" ]]; then TERMSTRING='--terminal'; fi
+
+GRACE=2
 
 mkdir -p "$MTDIR/logs"
 
 while true; do
 	d1=$(date "+%s")
-	"$MTBIN" --config "$CONFFILE" --logfile "$MTDIR/logs"/debug.txt
+	"$MTBIN" --config "$CONFFILE" --logfile "$MTDIR/logs"/debug.txt "$TERMSTRING"
 	d2=$(date "+%s")
 	ds=$(date "+%F%T"|sed -r 's/[^0-9]+/-/g')
 
@@ -71,5 +77,8 @@ while true; do
 		fi
 		tail -n $TAILLENGTH "$MTDIR/logs"/minetest-"$ds".log
 		sleep "$RESTARTDELAY" || faile "FAILED SLEEP - aborting" 
+	else
+		infoe "Restaring in $GRACE seconds"
+		sleep $GRACE # grace period for proper interruption
 	fi
 done
