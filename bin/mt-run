@@ -375,7 +375,6 @@ while true; do
 			# do not quote admin email - could be several addresses
 			tail -n $TAILLENGTH "$MTDIR/logs"/minetest-"$ds".log | mail -s "Minetest server failure [$SERVERNAME]" $ADMINEMAIL
 		fi
-		tail -n $TAILLENGTH "$MTDIR/logs"/minetest-"$ds".log
 		sleep "$RESTARTDELAY" || faile "FAILED SLEEP - aborting" 
 	else
 		infoe "Restaring in $GRACE seconds"
