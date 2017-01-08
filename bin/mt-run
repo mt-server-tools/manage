@@ -240,7 +240,7 @@ function readkv {
 		thedefault="$1"; shift
 	fi
 
-	res=$(egrep '^$thekey\s*=' "$thefile"|sed -r "s/^$thekey"'\s*'"=//")
+	res=$(egrep "^$thekey"'\s*=' "$thefile"|sed -r "s/^$thekey"'\s*=\s*//')
 	if [[ -z "$res" ]]; then
 		echo "$thedefault"
 	else
