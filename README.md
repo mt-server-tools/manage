@@ -66,3 +66,4 @@ Build your own mod spec, and make a pull request to be included!
 	* change frequency of mob spawns for `mobs_redo` mobs
 	* making addendum craft recipes
 	* Using `entity_override` to adjust mobs, and create variant mobs
+	* Using `entity_override` to add functionality
