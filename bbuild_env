@@ -1,0 +1,3 @@
+BUILDOUTD=pkg/usr/local/bin/
+BBPATH="$BBPATH:./"
+
