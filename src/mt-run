@@ -1,85 +1,97 @@
 #!/bin/bash
 
-
-### Minetest Runner Usage:help
+### Minetest Service Runner Usage:help
+# Run a minetest instance from systemd
 #
-# Run a minetest server manually, with auto restart on failures.
+#	mt-run MINETEST_DIRECTORY [loop]
 #
-# Usage:
-#	mt-run [-d MTDIR]
-#
-# MTDIR is the path to the top level directory of a minetest installation. If omitted, uses the current working directory
-#
-# If the server stops or fails, it is immediately restarted -- this includes shutdowns from within the game with the /shutdown command
-#
-# If the server fails too quickly, the script will wait for a given number of seconds (default 60) before attempting to restart again.
-# In this scenario, the admin will also receive an email if one is configured, containing the last few lines of the log file (default 100)
-#
-# The minetest.conf file is expected to live at the top of the MTDIR directory
-#
-# The MTDIR directory is expected to have a bin/ directory containing minetestserver, or for the binary to be configured in minetest.conf (see below)
+# Specify the "loop" option to use the built-in looping manager - do not use this with a daemonizer.
 #
 ###/doc
 
-### Settings Usage:help
-#
-# minetest.conf can hold some extra values to configure mt-run
-#
-# 'mtrun.bin' -- the path to the minetest executable - for example, /usr/bin/minetestserver
-#
-# 'mtrun.failwait' -- the number of seconds to wait until restarting after a restart failure
-#
-# 'mtrun.failwindow' -- if server stops before <mtrun.failwindow> seconds have elapsed, consider it a server failure
-#
-# 'mtrun.email' -- the email address(es) of the person(s) to notify. Must be a space-separated list of email addresses
-#
-# 'mtrun.tail' -- the number of lines at the end of the failure log to include in the email
-#
-# 'mtrun.terminal' -- use ncurses terminal mode
-#
-###/doc
+#%include notest.sh bashout.sh colours.sh version.sh autohelp.sh
 
-#%include readargs autohelp kvreader bashout
+parse_args() {
+	MT_DIR="$1"; shift
 
-MTDIR=$(argread 1 -d )
-if [[ -z "$MTDIR" ]]; then MTDIR=./ ; fi
+	MT_LOOP=false
+	[[ "$1" = loop ]] && { MT_LOOP=true; shift; }
 
-CONFFILE="$MTDIR/minetest.conf"
+	# These are just defaults. Can be overridden by conf file
+	MT_CONF="$MT_DIR/minetest.conf"
+}
 
-MTBIN=$(freadkv mtrun.bin "$CONFFILE" "$MTDIR/bin/minetestserver")
-RESTARTDELAY=$(freadkv mtrun.failwait "$CONFFILE" 60) # seconds to wait after a failure
-ADMINEMAIL=$(freadkv mtrun.email "$CONFFILE" )
-TAILLENGTH=$(freadkv mtrun.tail "$CONFFILE" 100)
-TERMMODE=$(freadkv mtrun.terminal "$CONFFILE" "false")
-FAILWINDOW=$(freadkv mtrun.failwindow "$CONFFILE" 15) # if server stops before $FAILWINDOW seconds have elapsed, consider it a server failure
-SERVERNAME=$(freadkv "server_name" "$CONFFILE" "$HOSTNAME:$PWD")
+readconf() {
+	readkv "$1" "$MT_CONF" "$2"
+}
 
-TERMSTRING=""
-if [[ "$TERMMODE" == "true" ]]; then TERMSTRING='--terminal'; fi
+load_conf() {
+	MT_BIN="$(readconf mt.bin bin/minetestserver)"
+	MT_LOG="$(readconf mt.logs "logs/debug.txt")"
 
-GRACE=2
+	MTL_GRACE="$(readconf mt.loop.grace 1)"
+	MTL_FAILTIME="$(readconf mt.loop.failtime 15)"
+	MTL_FAILPAUSE="$(readconf mt.loop.failpause 30)"
 
-mkdir -p "$MTDIR/logs"
+	MTR_ADMINEMAIL="$(readconf mt.emails "")"
+	MTR_TAIL="$(readconfn mt.report.tail 50)"
 
-while true; do
-	d1=$(date "+%s")
-	"$MTBIN" --config "$CONFFILE" --logfile "$MTDIR/logs"/debug.txt "$TERMSTRING"
-	d2=$(date "+%s")
-	ds=$(date "+%F%T"|sed -r 's/[^0-9]+/-/g')
+	SERVERNAME="$(readconf server_name "$PWD")"
+}
 
-	mv "$MTDIR/logs"/debug.txt "$MTDIR/logs"/minetest-"$ds".log
+runmt() {
+	local logdir="$MT_DIR/$(dirname "$MT_LOG")"
+	[[ -d "$logdir" ]] || mkdir -p "$logdir"
 
-	infoe "========================= Log saved to $MTDIR/logs/minetest-$ds.log"
+	"MT_DIR/$MT_BIN" --logfile "$MT_DIR/$MT_LOG"
+}
 
-	if [[ "$(( $d2 - $d1 ))" -lt 15 ]]; then
-		warne "RESTARTED TOO FAST - waiting $RESTARTDELAY seconds"
-		if [[ -n "$ADMINEMAIL" ]]; then
-			# do not quote admin email - could be several addresses
-			tail -n $TAILLENGTH "$MTDIR/logs"/minetest-"$ds".log | mail -s "Minetest server failure [$SERVERNAME]" $ADMINEMAIL
+runloop() {
+	while true; do
+
+		# Run MT, and track time
+		local d1=$(date "+%s")
+		runmt
+		local d2=$(date "+%s")
+		local ds=$(date "+%F%T"|sed -r 's/[^0-9]+/-/g')
+		
+		local logdir="$MT_DIR/$(dirname "$MT_LOG")"
+		local savelog="$logdir/minetest-${ds}.log"
+
+		# Save the log instance
+		mv "$MT_DIR/$MT_LOG" "$savelog"
+		gzip "$savelog"
+		savelog="$savelog.gz"
+
+		infoe "========================= Log saved to $savelog"
+
+		# Failed too soon
+		if [[ "$(( $d2 - $d1 ))" -lt "$MTL_FAILTIME" ]]; then
+			warne "RESTARTED TOO FAST - waiting $MTL_FAILPAUSE seconds"
+			if [[ -n "$MTR_ADMINEMAIL" ]]; then
+				# do not quote admin email - could be several addresses
+				zcat "$savelog"|tail -n "$MTR_TAIL" | mail -s "Minetest server failure [$SERVERNAME]" $MTR_ADMINEMAIL
+			fi
+			sleep "$MTL_PAUSE" || faile "FAILED SLEEP - aborting" 
+
+		# Failed after a while, or not a failure - we don't care at this point
+		else
+			infoe "Restaring in $MTL_GRACE second(s)"
+			sleep "$MTL_GRACE" # grace period for proper interruption
 		fi
-		sleep "$RESTARTDELAY" || faile "FAILED SLEEP - aborting" 
+	done
+}
+
+main() {
+	parse_args "$@"
+
+	load_conf "$MT_CONF"
+
+	if [[ "$MT_LOOP" = true ]]; then
+		runmt
 	else
-		infoe "Restaring in $GRACE seconds"
-		sleep $GRACE # grace period for proper interruption
+		runloop
 	fi
-done
+}
+
+notest main "$@"
