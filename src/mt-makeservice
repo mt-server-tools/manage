@@ -1,33 +1,67 @@
 #!/bin/bash
 
-### insysd MTDIR Usage:help
+### Create Minetest Service MTDIR Usage:help
 # Install a systemd service for the specified minetest directory
 # Assumes the directory contains its own minetest.conf file
+#
+#	 mt-makeservice USER MT_NAME MT_PATH
+#
+# USER
+# 	the user the service will run as
+#
+# MT_NAME
+# 	the name of the service
+#
+# MT_PATH
+# 	the path to the minetest folder
 ###/doc
 
-#%include autohelp.sh
+#%include verison.sh autohelp.sh varify.sh
 
 insysd() {
 
-if [[ "$UID" -gt 0 ]]; then
-	warne "Cannot install SystemD service - must be root"
-fi
+[[ "$UID" = 0 ]] || faile "You must be root to run this script"
 
-local iam="$(whoami)"
 
-cat <<EOF > /etc/systemd/system/minetest-$iam.service
+
+main() {
+	genservice "$@" > /etc/systemd/system/minetest-$iam.service
+
+}
+
+validate_path() {
+	[[ -f "/$1/minetest.conf" ]] || faile "Could not locate /$1/minetest.conf"
+}
+
+validate_user() {
+	local username="$1"; shift
+
+	[[ ! "$username" =~ : ]] && egrep "^$username:" /etc/passwd -q || faile "Invalid user $username"
+}
+
+genservice() {
+	local runuser="$1"; shift
+	local name="$1";    shift
+	local mtpath="$1";  shift
+
+	validate_path "$mtpath"
+
+	local servicename="$(varify_fil "$name")"
+
+cat <<EOF
 [Unit]
 
-Description=Minetest Instance for $iam
+Description=Minetest $name
 After=network.target
 
 [Service]
-ExecStart=/usr/local/bin/mtservice
-User=$iam
+ExecStart=/usr/local/bin/mt-run $mtpath
+User=$runuser
 Restart=on-failure
-PIDFile=/run/minetest-$iam.pid
+PIDFile=/run/minetest-$servicename.pid
 
 [Install]
 WantedBy=default.target
 EOF
 }
+
