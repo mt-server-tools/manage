@@ -2,13 +2,17 @@
 
 ### Change Minetest settings Usage:help
 # 
-# Tool to change minetest server settings in /etc/minetest/minetest.conf, with rudimentary sanity checks.
+# Tool to change minetest config settings, with rudimentary sanity checks.
 # 
 # USAGE
+# -----
 # 
-# 	mt-config [OPTION VALUE] ...
+# 	mt-config [CONFIGFILE] [OPTION VALUE] ...
+#
+# `CONFIGFILE` is the path to the configuraiton file to use. If none is specified, `./minetest.conf` is assumed.
 # 
 # OPTIONS
+# -------
 # 
 # Every option has a value.
 # 
@@ -175,9 +179,16 @@ parse_option() {
 main() {
 	set_patterns
 
-	: ${CONFFILE=minetest.conf}
+	# Determine config
+	CONFFILE=minetest.conf
+
+	[[ "$1" =~ .conf$ ]] && {
+		CONFFILE="$1"; shift
+	} || :
+
 	[[ -f "$CONFFILE" ]] || faile "CONFFILE=$CONFFILE cannot be found."
 
+	# --------
 	while [[ -n "$*" ]]; do
 		local token="$1"; shift
 
