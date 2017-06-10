@@ -1,0 +1,6 @@
+/home/minetest/minetest/logs/*.log {
+  daily
+  compress
+  missingok
+  notifempty
+}

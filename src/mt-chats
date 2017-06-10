@@ -1,15 +1,15 @@
 #!/bin/bash
 
-#%include autohelp
+#%include autohelp.sh
 
 ### Search fo Chat in Logs Usage:help
 # Tool to find chat in logs, and player connect/disconnect activity
 #
 # Usage:
 #
-#	mt-chats LOG1 LOG2 ...
+#	mt-chats LOGFILES ...
 #
-# You can specify plain text files and gzipped log files directly
+# Each log file can be either plain text/uncompressed or GZipped
 ###/doc
 
 cmd=cat

@@ -5,4 +5,29 @@
 # Assumes the directory contains its own minetest.conf file
 ###/doc
 
-#%include autohelp 
+#%include autohelp.sh
+
+insysd() {
+
+if [[ "$UID" -gt 0 ]]; then
+	warne "Cannot install SystemD service - must be root"
+fi
+
+local iam="$(whoami)"
+
+cat <<EOF > /etc/systemd/system/minetest-$iam.service
+[Unit]
+
+Description=Minetest Instance for $iam
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/mtservice
+User=$iam
+Restart=on-failure
+PIDFile=/run/minetest-$iam.pid
+
+[Install]
+WantedBy=default.target
+EOF
+}

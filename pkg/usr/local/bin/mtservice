@@ -1,0 +1,7 @@
+#!/bin/bash
+
+cd /home/minetest/minetest
+
+mkdir -p logs
+
+bin/minetestserver --logfile logs/minetest.log

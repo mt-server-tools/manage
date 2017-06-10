@@ -1,3 +1,30 @@
 #!/bin/bash
 
-#%include bashout colours
+#%include bashout.sh colours.sh
+
+apt-get update || faile "Could not update APT packages"
+
+apt install make gcc g++ libirrlicht-dev cmake libbz2-dev libpng-dev libjpeg-dev libxxf86vm-dev libgl1-mesa-dev libsqlite3-dev libogg-dev libvorbis-dev libopenal-dev libcurl4-gnutls-dev libfreetype6-dev zlib1g-dev libgmp-dev libjsoncpp-dev git ca-certificates || faile "Could not install required packages"
+
+gclone() {
+	if [[ ! -d "$2" ]]; then
+		git clone "$1"
+	else
+		(
+		cd "$2"
+		git pull origin master
+
+		if [[ -d CMakeFiles ]]; then
+			rm -r CMakeFiles
+		fi
+		)
+	fi
+}
+
+gclone https://github.com/minetest/minetest minetest
+gclone https://github.com/minetest/minetest_game minetest/games/minetest_game
+
+cd minetest
+
+cmake . -DBUILD_CLIENT=false -DBUILD_SERVER=true
+make -j $(grep 'model name' -c /proc/cpuinfo)

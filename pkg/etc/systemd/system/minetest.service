@@ -1,0 +1,13 @@
+[Unit]
+
+Description=Minetest game server
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/mtservice
+User=minetest
+Restart=on-failure
+PIDFile=/run/minetest.pid
+
+[Install]
+WantedBy=default.target
