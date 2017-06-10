@@ -1,0 +1,194 @@
+#!/bin/bash
+
+### Change Minetest settings Usage:help
+# 
+# Tool to change minetest server settings in /etc/minetest/minetest.conf, with rudimentary sanity checks.
+# 
+# USAGE
+# 
+# 	mt-config [OPTION VALUE] ...
+# 
+# OPTIONS
+# 
+# Every option has a value.
+# 
+# Common operations
+# 	
+# 	--motd
+# 		Value: string, message displayed when players log on
+# 
+# 	--default-pass
+# 		Value: string. Set the default password for new players
+# 	
+# 	-b, --broadcast
+# 		Value: true or false. Whether to publicly announce the minetest server
+# 
+# 	--spawn-at
+# 		Value: coordinates. Specify where the spawn point is
+# 
+# 	-u, --usermax
+# 		Value: an integer indicating the maximum number of simltaneous users
+# 
+# 	-h, --host
+# 		Value: the host name, or IP address, of the server
+# 
+# 	-a, --admin
+# 		Value: the name of the admin
+# 	
+# 	-c, --creative
+# 		Value: true or false. Whether creative mode is switched on.
+# 
+# 	-m, --damage
+# 		Value: true or false. Whether player damage is enabled.	
+# 
+# 	-x, --pvp
+# 		Value: true or false. Whether players can kill eachother.
+# 
+# Setup operations
+# 	
+# 	-r, --privs
+# 		Value: comma-separated list of privileges to supply to new players
+# 	
+# 	-p, --port
+# 		Value: an integer specifying the port on which to serve
+# 
+# 	-d, --description
+# 		Value: string describing the server
+# 
+# 	-n, --name
+# 		Value: string of the displayed server name
+# 
+# More operations
+# 
+# 	-g, --game
+# 		Value: the name of a game installed in the game data directory
+# 		
+# 	--seed
+# 		Value: string, to use as seed when calculating map generation
+# 
+# 	--peaceful-mobs
+# 		Value: true or false. Whether to disable mobs marked as "monster"
+# 	
+# 	--give-initial
+# 		Value: true or false. Whether to run giveinitial mod code.
+# 
+# 	--no-empty
+# 		Value: true or false. Whether to allow players to connect without password (discouraged!)
+# 
+# 	--time-ratio
+# 		Value: integer, time of day ratio. 72 = 20 real minutes in one day/night cycle. 1 => 1:1 matching of game minutes to real minutes. 0 => time does not pass
+# 
+# EXAMPLES
+# 
+# Remember to activate your firewall and allow incoming connections on your chosen port
+# 
+# 	mt-config -p 30001 -n "A new mintest server" -d "Just a test" --pvp true --damage true --broadcast true
+# 	ufw allow 30001
+# 	systemctl restart minetest-server
+#
+###/doc
+
+#%include bashout.sh colours.sh version.sh notest.sh autohelp.sh ensureline.sh
+
+writeconf() {
+	local pattern="$1"; shift
+	local data="$*"
+
+	ensureline "$CONFFILE" "$pattern" "$data"
+}
+
+checkset_conf() {
+	local setting="$1"; shift
+	local value="$1"; shift
+	local checktype="$1"
+
+	[[ -z "$checktype" ]] || is_$checktype "$value" || faile "Cannot set $setting to '$value' : requires $checktype"
+
+	if [[ -n "$data" ]]; then
+		writeconf "$setting" "$value"
+	else
+		comment_out "$setting"
+	fi
+}
+
+comment_out() {
+	local token="$1"; shift
+
+	writeconf "($token\\b.+)" '#\1'
+}
+
+set_patterns() {
+	numpat="^[0-9]+$"
+
+	local num='\s*[0-9]+\s*'
+	pospat="^$num,$num,$num$"
+	
+	boolpat="^(true|false)$"
+
+	varpat="^([a-zA-Z0-9-]+)$"
+}
+
+is_num()   { [[ "$1" =~ $numpat ]]  || return 1 ; }
+
+is_pos()   { [[ "$1" =~ $pospat ]]  || return 1 ; }
+
+is_bool()  { [[ "$1" =~ $boolpat ]] || return 1 ; }
+
+is_var()   { [[ "$1" =~ $varpat ]]  || return 1 ; }
+
+parse_option() {
+	local token="$1"; shift
+	local value="$1"; shift
+	
+	# Map option
+
+	case "$token" in
+		--motd)			checkset_conf motd "$value" ;;
+		--default-pass)		checkset_conf default_password "$value" ;;
+		-b|--broadcast)		checkset_conf server_announce "$value" bool;;
+		--spawn-at)		checkset_conf static_spawnpoint "$value" pos;;
+		-u|--usermax)		checkset_conf max_users "$value" num;;
+		-x|--pvp)		checkset_conf enable_pvp "$value" bool;;
+		-m|--damage)		checkset_conf enable_damage "$value" bool;;
+		-c|--creative)		checkset_conf creative "$value" bool;;
+		-a|--admin)		checkset_conf name "$value" var;;
+		-r|--privs)		checkset_conf default_privs "$value" ;;
+
+		-h|--host)		checkset_conf server_address "$value" ;;
+		-p|--port)		checkset_conf port "$value" num;;
+		-d|--description)	checkset_conf server_description "$value" ;;
+		-n|--name)		checkset_conf server_name "$value" ;;
+		--no-empty)		checkset_conf disallow_empty_password "$value" bool;;
+
+		-g|--game)		checkset_conf default_game "$value" var;;
+		-w|--world)		checkset_conf map-dir "$value" ;;
+		--seed)			checkset_conf seed "$value" ;;
+		--time-ratio)		checkset_conf time_speed "$value" num;;
+
+		# Non-standard
+		--no-monsters)		checkset_conf peaceful_mobs "$value" bool;;
+		--give-initial)		checkset_conf give_initial "$value" bool;;
+		--initial-items)	checkset_conf initial_items "$value" ;;
+	esac
+}
+
+main() {
+	set_patterns
+
+	: ${CONFFILE=minetest.conf}
+	[[ -f "$CONFFILE" ]] || faile "CONFFILE=$CONFFILE cannot be found."
+
+	while [[ -n "$*" ]]; do
+		local token="$1"; shift
+
+		case "$token" in
+			-*)
+				parse_option "$token" "$1" ; shift
+				;;
+			*)
+				faile "Unknown action $token"
+		esac
+	done
+}
+
+notest main "$@"
