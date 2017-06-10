@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#%include autohelp.sh
-
 ### Search fo Chat in Logs Usage:help
 # Tool to find chat in logs, and player connect/disconnect activity
 #
@@ -12,6 +10,8 @@
 # Each log file can be either plain text/uncompressed or GZipped
 ###/doc
 
+#%include autohelp.sh
+
 cmd=cat
 
 for logfile in "$@"; do
@@ -19,4 +19,4 @@ for logfile in "$@"; do
 		cmd=zcat
 	fi
 	$cmd $logfile |grep -P 'List of players:|PM from|CHAT:' -i -a --color=always
-done|less -R
+done | /usr/bin/less -R
