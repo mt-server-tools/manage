@@ -41,7 +41,7 @@ package_install() {
 
 	apt-get update || faile "Could not update APT packages"
 
-	apt install make gcc g++ libirrlicht-dev cmake libbz2-dev libpng-dev libjpeg-dev libxxf86vm-dev libgl1-mesa-dev libsqlite3-dev libogg-dev libvorbis-dev libopenal-dev libcurl4-gnutls-dev libfreetype6-dev zlib1g-dev libgmp-dev libjsoncpp-dev git ca-certificates || faile "Could not install required packages"
+	apt install make gcc g++ libirrlicht-dev cmake libbz2-dev libpng-dev libjpeg-dev libxxf86vm-dev libgl1-mesa-dev libsqlite3-dev libogg-dev libvorbis-dev libopenal-dev libcurl4-gnutls-dev libfreetype6-dev zlib1g-dev libgmp-dev libjsoncpp-dev || faile "Could not install required packages"
 }
 
 get_cmake_args() {
