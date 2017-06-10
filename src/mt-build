@@ -1,17 +1,33 @@
 #!/bin/bash
 
-#%include bashout.sh colours.sh
+### Minetest build script Usage:help
+#
+# Build minetest server with default settings.
+#
+# Usage
+# -----
+#
+# 	mt-build [ CMAKE_OPTIONS ] [ -j PROCNUM ]
+#
+# Simply run mt-build to build with the defaults.
+#
+# Pass options for CMake on the command line ; each CMake option must start with '-D'
+#
+# When specified with -j, PROCNUM is the number of processors to use during the build
+#
+###/doc
 
-apt-get update || faile "Could not update APT packages"
-
-apt install make gcc g++ libirrlicht-dev cmake libbz2-dev libpng-dev libjpeg-dev libxxf86vm-dev libgl1-mesa-dev libsqlite3-dev libogg-dev libvorbis-dev libopenal-dev libcurl4-gnutls-dev libfreetype6-dev zlib1g-dev libgmp-dev libjsoncpp-dev git ca-certificates || faile "Could not install required packages"
+#%include notest.sh bashout.sh colours.sh autohelp.sh
 
 gclone() {
-	if [[ ! -d "$2" ]]; then
-		git clone "$1"
+	local giturl="$1"; shift
+	local gitdir="$1"; shift
+
+	if [[ ! -d "$gitdir" ]]; then
+		git clone "$giturl"
 	else
 		(
-		cd "$2"
+		cd "$gitdir"
 		git pull origin master
 
 		if [[ -d CMakeFiles ]]; then
@@ -21,10 +37,51 @@ gclone() {
 	fi
 }
 
-gclone https://github.com/minetest/minetest minetest
-gclone https://github.com/minetest/minetest_game minetest/games/minetest_game
+package_install() {
 
-cd minetest
+	apt-get update || faile "Could not update APT packages"
 
-cmake . -DBUILD_CLIENT=false -DBUILD_SERVER=true
-make -j $(grep 'model name' -c /proc/cpuinfo)
+	apt install make gcc g++ libirrlicht-dev cmake libbz2-dev libpng-dev libjpeg-dev libxxf86vm-dev libgl1-mesa-dev libsqlite3-dev libogg-dev libvorbis-dev libopenal-dev libcurl4-gnutls-dev libfreetype6-dev zlib1g-dev libgmp-dev libjsoncpp-dev git ca-certificates || faile "Could not install required packages"
+}
+
+get_cmake_args() {
+	while [[ -n "$*" ]]; do
+		if [[ "$1" =~ ^-D ]]; then
+			echo "$1"
+		fi
+		shift
+	done
+}
+
+get_procunm() {
+	local procnum="$(grep 'model name' -c /proc/cpuinfo)"
+
+	while [[ -n "$*" ]]; do
+		if [[ "$1" =~ ^-D ]]; then
+			procnum="$1"
+			break
+		fi
+	done
+
+	echo "$procnum"
+}
+
+main() {
+	package_install
+
+	{
+	gclone https://github.com/minetest/minetest minetest
+	gclone https://github.com/minetest/minetest_game minetest/games/minetest_game
+
+	cd minetest
+	} || faile "Synchronization of Minetest failed !"
+
+	local cmakeargs=( $(get_cmake_args "$@") )
+
+	cmake . -DBUILD_CLIENT=false -DBUILD_SERVER=true "${cmakeargs[@]}" || faile "CMake configuration failed"
+
+	local procnum="$(get_procnum "$@")"
+	make -j "$procnum"
+}
+
+notest main "$@"
