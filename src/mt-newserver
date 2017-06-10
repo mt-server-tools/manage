@@ -1,6 +1,0 @@
-#!/bin/bash
-
-### Create a new Minetest server Usage:help
-#
-# This script will create a new user and install minetest to it
-###/doc
