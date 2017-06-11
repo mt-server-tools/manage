@@ -271,7 +271,7 @@ get_cmake_args() {
 	done
 }
 
-get_procnm() {
+get_procnum() {
 	local procnum="$(grep 'model name' -c /proc/cpuinfo)"
 
 	while [[ -n "$*" ]]; do
