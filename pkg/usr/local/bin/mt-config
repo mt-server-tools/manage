@@ -213,7 +213,7 @@ BBVERSION_POINT=0
 BBVERSION_FLAG=release
 BBVERSION_PROGRAM=mt-config
 BBVERSION_BUILDDATE=2017-06-11
-BBVERSION_BUILD=3
+BBVERSION_BUILD=22
 
 function bbns_version_infoe {
 	type infoe 2>&1|if grep 'not found' -q; then
@@ -365,10 +365,13 @@ fi
 ###/doc
 
 function ensureline {
-	if grep -P "^$1$" "$2" -q ; then
-		ensureline_matches "$@"
+	local file="$1"; shift
+	local pattern="$1"; shift
+
+	if grep -P "^$pattern$" "$file" -q ; then
+		ensureline_matches "$file" "$pattern" "$@"
 	else
-		ensureline_add "$@"
+		ensureline_add "$file" "$pattern" "$@"
 	fi
 }
 
@@ -379,7 +382,7 @@ function ensureline_matches {
 
 	#TODO - add support to specify a start line, and a range?
 
-	sed 's^$PATTERN$$LINEDATA' -i "$FILE"
+	sed -r "s^$PATTERN$$LINEDATA" -i "$FILE"
 }
 
 function ensureline_add {
@@ -391,10 +394,10 @@ function ensureline_add {
 }
 
 writeconf() {
-	local pattern="$1"; shift
-	local data="$*"
+	local setting="$1"; shift
+	local value="$*"
 
-	ensureline "$CONFFILE" "$pattern" "$data"
+	ensureline "$CONFFILE" "$setting"'(\s|=).+' "$setting = $value"
 }
 
 checkset_conf() {
@@ -404,7 +407,7 @@ checkset_conf() {
 
 	[[ -z "$checktype" ]] || is_$checktype "$value" || faile "Cannot set $setting to '$value' : requires $checktype"
 
-	if [[ -n "$data" ]]; then
+	if [[ -n "$value" ]]; then
 		writeconf "$setting" "$value"
 	else
 		comment_out "$setting"
@@ -414,7 +417,7 @@ checkset_conf() {
 comment_out() {
 	local token="$1"; shift
 
-	writeconf "($token\\b.+)" '#\1'
+	sed "s/^$token\\b/#$token/" -i "$CONFFILE"
 }
 
 set_patterns() {

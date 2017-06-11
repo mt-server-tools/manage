@@ -176,7 +176,7 @@ BBVERSION_POINT=0
 BBVERSION_FLAG=release
 BBVERSION_PROGRAM=mt-run
 BBVERSION_BUILDDATE=2017-06-11
-BBVERSION_BUILD=2
+BBVERSION_BUILD=8
 
 function bbns_version_infoe {
 	type infoe 2>&1|if grep 'not found' -q; then
