@@ -1,0 +1,501 @@
+#!/bin/bash
+
+### Change Minetest settings Usage:help
+# 
+# Tool to change minetest config settings, with rudimentary sanity checks.
+# 
+# USAGE
+# -----
+# 
+# 	mt-config [CONFIGFILE] [OPTION VALUE] ...
+#
+# `CONFIGFILE` is the path to the configuraiton file to use. If none is specified, `./minetest.conf` is assumed.
+# 
+# OPTIONS
+# -------
+# 
+# Every option has a value.
+# 
+# Common operations
+# 	
+# 	--motd
+# 		Value: string, message displayed when players log on
+# 
+# 	--default-pass
+# 		Value: string. Set the default password for new players
+# 	
+# 	-b, --broadcast
+# 		Value: true or false. Whether to publicly announce the minetest server
+# 
+# 	--spawn-at
+# 		Value: coordinates. Specify where the spawn point is
+# 
+# 	-u, --usermax
+# 		Value: an integer indicating the maximum number of simltaneous users
+# 
+# 	-h, --host
+# 		Value: the host name, or IP address, of the server
+# 
+# 	-a, --admin
+# 		Value: the name of the admin
+# 	
+# 	-c, --creative
+# 		Value: true or false. Whether creative mode is switched on.
+# 
+# 	-m, --damage
+# 		Value: true or false. Whether player damage is enabled.	
+# 
+# 	-x, --pvp
+# 		Value: true or false. Whether players can kill eachother.
+# 
+# Setup operations
+# 	
+# 	-r, --privs
+# 		Value: comma-separated list of privileges to supply to new players
+# 	
+# 	-p, --port
+# 		Value: an integer specifying the port on which to serve
+# 
+# 	-d, --description
+# 		Value: string describing the server
+# 
+# 	-n, --name
+# 		Value: string of the displayed server name
+# 
+# More operations
+# 
+# 	-g, --game
+# 		Value: the name of a game installed in the game data directory
+# 		
+# 	--seed
+# 		Value: string, to use as seed when calculating map generation
+# 
+# 	--peaceful-mobs
+# 		Value: true or false. Whether to disable mobs marked as "monster"
+# 	
+# 	--give-initial
+# 		Value: true or false. Whether to run giveinitial mod code.
+# 
+# 	--no-empty
+# 		Value: true or false. Whether to allow players to connect without password (discouraged!)
+# 
+# 	--time-ratio
+# 		Value: integer, time of day ratio. 72 = 20 real minutes in one day/night cycle. 1 => 1:1 matching of game minutes to real minutes. 0 => time does not pass
+# 
+# EXAMPLES
+# 
+# Remember to activate your firewall and allow incoming connections on your chosen port
+# 
+# 	mt-config -p 30001 -n "A new mintest server" -d "Just a test" --pvp true --damage true --broadcast true
+# 	ufw allow 30001
+# 	systemctl restart minetest-server
+#
+###/doc
+
+#!/bin/bash
+
+
+MODE_DEBUG=no
+MODE_DEBUG_VERBOSE=no
+
+### debuge MESSAGE Usage:bbuild
+# print a blue debug message to stderr
+# only prints if MODE_DEBUG is set to "yes"
+###/doc
+function debuge {
+	if [[ "$MODE_DEBUG" = yes ]]; then
+		echo -e "${CBBLU}DEBUG:$CBLU$*$CDEF" 1>&2
+	fi
+}
+
+### infoe MESSAGE Usage:bbuild
+# print a green informational message to stderr
+###/doc
+function infoe {
+	echo -e "$CGRN$*$CDEF" 1>&2
+}
+
+### warne MESSAGE Usage:bbuild
+# print a yellow warning message to stderr
+###/doc
+function warne {
+	echo -e "${CBYEL}WARN:$CYEL $*$CDEF" 1>&2
+}
+
+### faile [CODE] MESSAGE Usage:bbuild
+# print a red failure message to stderr and exit with CODE
+# CODE must be a number
+# if no code is specified, error code 127 is used
+###/doc
+function faile {
+	local ERCODE=127
+	local numpat='^[0-9]+$'
+
+	if [[ "$1" =~ $numpat ]]; then
+		ERCODE="$1"; shift
+	fi
+
+	echo "${CBRED}ERROR FAIL:$CRED$*$CDEF" 1>&2
+	exit $ERCODE
+}
+
+function dumpe {
+	echo -n "[1;35m$*" 1>&2
+	echo -n "[0;35m" 1>&2
+	cat - 1>&2
+	echo -n "[0m" 1>&2
+}
+
+function breake {
+	if [[ "$MODE_DEBUG" != yes ]]; then
+		return
+	fi
+
+	read -p "${CRED}BREAKPOINT: $* >$CDEF " >&2
+	if [[ "$REPLY" =~ $(echo 'quit|exit|stop') ]]; then
+		faile "ABORT"
+	fi
+}
+
+### Auto debug Usage:main
+# When included, bashout processes a special "--debug" flag
+#
+# It does not remove the debug flag from arguments.
+###/doc
+
+if [[ "$*" =~ --debug ]]; then
+	MODE_DEBUG=yes
+
+	if [[ "$MODE_DEBUG_VERBOSE" = yes ]]; then
+		set -x
+	fi
+fi
+#!/bin/bash
+
+### Colours for bash Usage:bbuild
+# A series of colour flags for use in outputs.
+#
+# Example:
+# 	
+# 	echo "${CRED}Some red text ${CBBLU} some blue text $CDEF some text in the terminal's default colour"
+#
+# Colours available:
+#
+# CDEF -- switches to the terminal default
+#
+# CRED, CBRED -- red and bright/bold red
+# CGRN, CBGRN -- green and bright/bold green
+# CYEL, CBYEL -- yellow and bright/bold yellow
+# CBLU, CBBLU -- blue and bright/bold blue
+# CPUR, CBPUR -- purple and bright/bold purple
+#
+###/doc
+
+export CRED="[31m"
+export CGRN="[32m"
+export CYEL="[33m"
+export CBLU="[34m"
+export CPUR="[35m"
+export CBRED="[1;31m"
+export CBGRN="[1;32m"
+export CBYEL="[1;33m"
+export CBBLU="[1;34m"
+export CBPUR="[1;35m"
+export CDEF="[0m"
+### Helper for version management Usage:bbuild
+# Requires a version.bbuild in the current directory to work
+###/doc
+
+#%VERSIONFILE
+BBVERSION_MAJOR=0
+BBVERSION_MINOR=0
+BBVERSION_POINT=0
+BBVERSION_FLAG=release
+BBVERSION_PROGRAM=mt-config
+BBVERSION_BUILDDATE=2017-06-11
+BBVERSION_BUILD=2
+
+function bbns_version_infoe {
+	type infoe 2>&1|if grep 'not found' -q; then
+		echo "$*"
+	else
+		infoe "$*"
+	fi
+}
+
+function bbns_version_showversion {
+	bbns_version_infoe "$BBVERSION_PROGRAM : $(bbns_version_genversion)"
+	exit
+}
+
+function bbns_version_genversion {
+	echo "$BBVERSION_MAJOR.$BBVERSION_MINOR.$BBVERSION_POINT ($BBVERSION_FLAG build $BBVERSION_BUILD) $BBVERSION_BUILDDATE"
+}
+
+if [[ "$*" =~ --version ]]; then
+	bbns_version_showversion
+fi
+### notest FUNCTION ARGUMENTS Usage:bbuild
+#
+# This function performs a simple test to see if the "BBSETTESTMODE" variable is set to the string "test mode"
+#
+# If so, it does NOT call the function. In all other cases, the function is called with the arguments.
+#
+# The purpose of this function is to allow a simple method to encourage testability: source notest.sh in your test script, and set the BBTESTMODE variable to "test mode" to prevent the script from running.
+#
+# Example test target script, "test_target.sh":
+#
+#	#%include notest.sh
+#
+# 	function action1 { ... }
+#
+# 	function action2 { ... }
+#
+# 	function main {
+# 		action1
+# 		action2
+# 	}
+#
+# 	notest main "$@"
+#
+# Example test script:
+#
+# 	. ~/.local/lib/bbuild/notest.sh
+# 	BBTESTMODE="test mode"
+#
+# 	# main will not run
+# 	. test_target.sh
+#
+# 	action1 || echo failed action1
+#
+# 	action2 || echo failed action2
+#
+# You can source a file with this kind of structure without the risk of triggering its runtime. This allows the file to be sourced and tested safely.
+#
+###/doc
+
+function notest {
+	local funcall="$1"; shift
+
+	if [[ "${BBTESTMODE:-}" != "test mode" ]]; then
+		"$funcall" "$@"
+	fi
+}
+#!/bin/bash
+
+### printhelp Usage:bbuild
+# Write your help as documentation comments in your script
+#
+# If you need to output the help from a running script, call the
+# `printhelp` function and it will print the help documentation
+# in the current script to stdout
+#
+# A help comment looks like this:
+#
+#	### <title> Usage:help
+#	#
+#	# <some content>
+#	#
+#	# end with "###/doc" on its own line (whitespaces before
+#	# and after are OK)
+#	#
+#	###/doc
+#
+###/doc
+
+CHAR='#'
+
+function printhelp {
+	local USAGESTRING=help
+	local TARGETFILE=$0
+	if [[ -n "$*" ]]; then USAGESTRING="$1" ; shift; fi
+	if [[ -n "$*" ]]; then TARGETFILE="$1" ; shift; fi
+
+        echo -e "\n$(basename "$TARGETFILE")\n===\n"
+        local SECSTART='^\s*'"$CHAR$CHAR$CHAR"'\s+(.+?)\s+Usage:'"$USAGESTRING"'\s*$'
+        local SECEND='^\s*'"$CHAR$CHAR$CHAR"'\s*/doc\s*$'
+        local insec="$(mktemp --tmpdir)"; rm "$insec"
+        cat "$TARGETFILE" | while read secline; do
+                if [[ "$secline" =~ $SECSTART ]]; then
+                        touch "$insec"
+                        echo -e "\n${BASH_REMATCH[1]}\n---\n"
+                elif [[ -f $insec ]]; then
+                        if [[ "$secline" =~ $SECEND ]]; then
+                                rm "$insec"
+                        else
+				echo "$secline" | sed -r "s/^\s*$CHAR//g"
+                        fi
+                fi
+        done
+        if [[ -f "$insec" ]]; then
+                echo "WARNING: Non-terminated help block." 1>&2
+		rm "$insec"
+        fi
+	echo ""
+}
+
+### automatic help Usage:main
+#
+# automatically call help if "--help" is detected in arguments
+#
+###/doc
+if [[ "$@" =~ --help ]]; then
+	cols="$(tput cols)"
+	printhelp | fold -w "$cols" -s
+	exit 0
+fi
+### ensureline Usage:bbuild
+#
+# Utility for manipulating config files (and other files where all similar lines need to match).
+#
+#	ensureline FILE PATTERN LINEDATA
+#
+# Ensure that **every** line in FILE matched by PATTERN becomes LINEDATA
+#
+# If no such line is found, LINEDATA is appended to the end of the file.
+#
+# For example
+#
+# 	ensureline /etc/ssh/sshd_config '#?PasswordAuthentication.*' "PasswordAuthentication no"
+#
+# Ensure that the PasswordAuthentication line, whether commented out or not, becomes an uncomented "PasswordAuthentication no", or add it to the end of the file.
+#
+# The match applies to the full line; the pattern '#?PasswordAuth' on its own would not match, due to the missing characters.
+#
+###/doc
+
+function ensureline {
+	if grep -P "^$1$" "$2" -q ; then
+		ensureline_matches "$@"
+	else
+		ensureline_add "$@"
+	fi
+}
+
+function ensureline_matches {
+	local FILE="$1"; shift
+	local PATTERN="$1"; shift
+	local LINEDATA="$1"; shift
+
+	#TODO - add support to specify a start line, and a range?
+
+	sed 's^$PATTERN$$LINEDATA' -i "$FILE"
+}
+
+function ensureline_add {
+	local FILE="$1"; shift
+	local PATTERN="$1"; shift
+	local LINEDATA="$1"; shift
+
+	echo "$LINEDATA" >> "$FILE"
+}
+
+writeconf() {
+	local pattern="$1"; shift
+	local data="$*"
+
+	ensureline "$CONFFILE" "$pattern" "$data"
+}
+
+checkset_conf() {
+	local setting="$1"; shift
+	local value="$1"; shift
+	local checktype="$1"
+
+	[[ -z "$checktype" ]] || is_$checktype "$value" || faile "Cannot set $setting to '$value' : requires $checktype"
+
+	if [[ -n "$data" ]]; then
+		writeconf "$setting" "$value"
+	else
+		comment_out "$setting"
+	fi
+}
+
+comment_out() {
+	local token="$1"; shift
+
+	writeconf "($token\\b.+)" '#\1'
+}
+
+set_patterns() {
+	numpat="^[0-9]+$"
+
+	local num='\s*[0-9]+\s*'
+	pospat="^$num,$num,$num$"
+	
+	boolpat="^(true|false)$"
+
+	varpat="^([a-zA-Z0-9-]+)$"
+}
+
+is_num()   { [[ "$1" =~ $numpat ]]  || return 1 ; }
+
+is_pos()   { [[ "$1" =~ $pospat ]]  || return 1 ; }
+
+is_bool()  { [[ "$1" =~ $boolpat ]] || return 1 ; }
+
+is_var()   { [[ "$1" =~ $varpat ]]  || return 1 ; }
+
+parse_option() {
+	local token="$1"; shift
+	local value="$1"; shift
+	
+	# Map option
+
+	case "$token" in
+		--motd)			checkset_conf motd "$value" ;;
+		--default-pass)		checkset_conf default_password "$value" ;;
+		-b|--broadcast)		checkset_conf server_announce "$value" bool;;
+		--spawn-at)		checkset_conf static_spawnpoint "$value" pos;;
+		-u|--usermax)		checkset_conf max_users "$value" num;;
+		-x|--pvp)		checkset_conf enable_pvp "$value" bool;;
+		-m|--damage)		checkset_conf enable_damage "$value" bool;;
+		-c|--creative)		checkset_conf creative "$value" bool;;
+		-a|--admin)		checkset_conf name "$value" var;;
+		-r|--privs)		checkset_conf default_privs "$value" ;;
+
+		-h|--host)		checkset_conf server_address "$value" ;;
+		-p|--port)		checkset_conf port "$value" num;;
+		-d|--description)	checkset_conf server_description "$value" ;;
+		-n|--name)		checkset_conf server_name "$value" ;;
+		--no-empty)		checkset_conf disallow_empty_password "$value" bool;;
+
+		-g|--game)		checkset_conf default_game "$value" var;;
+		-w|--world)		checkset_conf map-dir "$value" ;;
+		--seed)			checkset_conf seed "$value" ;;
+		--time-ratio)		checkset_conf time_speed "$value" num;;
+
+		# Non-standard
+		--no-monsters)		checkset_conf peaceful_mobs "$value" bool;;
+		--give-initial)		checkset_conf give_initial "$value" bool;;
+		--initial-items)	checkset_conf initial_items "$value" ;;
+	esac
+}
+
+main() {
+	set_patterns
+
+	# Determine config
+	CONFFILE=minetest.conf
+
+	[[ "$1" =~ .conf$ ]] && {
+		CONFFILE="$1"; shift
+	} || :
+
+	[[ -f "$CONFFILE" ]] || faile "CONFFILE=$CONFFILE cannot be found."
+
+	# --------
+	while [[ -n "$*" ]]; do
+		local token="$1"; shift
+
+		case "$token" in
+			-*)
+				parse_option "$token" "$1" ; shift
+				;;
+			*)
+				faile "Unknown action $token"
+		esac
+	done
+}
+
+notest main "$@"

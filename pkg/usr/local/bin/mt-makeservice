@@ -1,0 +1,201 @@
+#!/bin/bash
+
+### Create Minetest Service MTDIR Usage:help
+# Install a systemd service for the specified minetest directory
+#
+#	 mt-makeservice USER SERVICE_NAME MTCONFIG_PATH
+#
+# Uses the main minetest server as configured in /etc/minetest-auto/minetest-auto.conf
+#
+# USER
+# 	the user the service will run as
+#
+# SERVICE_NAME
+# 	the name of the service
+#
+# MTCONFIG_PATH
+# 	the path to the minetest config file
+###/doc
+
+### Helper for version management Usage:bbuild
+# Requires a version.bbuild in the current directory to work
+###/doc
+
+#%VERSIONFILE
+BBVERSION_MAJOR=0
+BBVERSION_MINOR=0
+BBVERSION_POINT=0
+BBVERSION_FLAG=release
+BBVERSION_PROGRAM=mt-makeservice
+BBVERSION_BUILDDATE=2017-06-11
+BBVERSION_BUILD=1
+
+function bbns_version_infoe {
+	type infoe 2>&1|if grep 'not found' -q; then
+		echo "$*"
+	else
+		infoe "$*"
+	fi
+}
+
+function bbns_version_showversion {
+	bbns_version_infoe "$BBVERSION_PROGRAM : $(bbns_version_genversion)"
+	exit
+}
+
+function bbns_version_genversion {
+	echo "$BBVERSION_MAJOR.$BBVERSION_MINOR.$BBVERSION_POINT ($BBVERSION_FLAG build $BBVERSION_BUILD) $BBVERSION_BUILDDATE"
+}
+
+if [[ "$*" =~ --version ]]; then
+	bbns_version_showversion
+fi
+#!/bin/bash
+
+### printhelp Usage:bbuild
+# Write your help as documentation comments in your script
+#
+# If you need to output the help from a running script, call the
+# `printhelp` function and it will print the help documentation
+# in the current script to stdout
+#
+# A help comment looks like this:
+#
+#	### <title> Usage:help
+#	#
+#	# <some content>
+#	#
+#	# end with "###/doc" on its own line (whitespaces before
+#	# and after are OK)
+#	#
+#	###/doc
+#
+###/doc
+
+CHAR='#'
+
+function printhelp {
+	local USAGESTRING=help
+	local TARGETFILE=$0
+	if [[ -n "$*" ]]; then USAGESTRING="$1" ; shift; fi
+	if [[ -n "$*" ]]; then TARGETFILE="$1" ; shift; fi
+
+        echo -e "\n$(basename "$TARGETFILE")\n===\n"
+        local SECSTART='^\s*'"$CHAR$CHAR$CHAR"'\s+(.+?)\s+Usage:'"$USAGESTRING"'\s*$'
+        local SECEND='^\s*'"$CHAR$CHAR$CHAR"'\s*/doc\s*$'
+        local insec="$(mktemp --tmpdir)"; rm "$insec"
+        cat "$TARGETFILE" | while read secline; do
+                if [[ "$secline" =~ $SECSTART ]]; then
+                        touch "$insec"
+                        echo -e "\n${BASH_REMATCH[1]}\n---\n"
+                elif [[ -f $insec ]]; then
+                        if [[ "$secline" =~ $SECEND ]]; then
+                                rm "$insec"
+                        else
+				echo "$secline" | sed -r "s/^\s*$CHAR//g"
+                        fi
+                fi
+        done
+        if [[ -f "$insec" ]]; then
+                echo "WARNING: Non-terminated help block." 1>&2
+		rm "$insec"
+        fi
+	echo ""
+}
+
+### automatic help Usage:main
+#
+# automatically call help if "--help" is detected in arguments
+#
+###/doc
+if [[ "$@" =~ --help ]]; then
+	cols="$(tput cols)"
+	printhelp | fold -w "$cols" -s
+	exit 0
+fi
+#!/bin/bash
+
+### Varify Usage:bbuild
+# Make a string into a valid variable name or file name
+#
+# Replaces any string of invalid characters into a "_"
+#
+# Valid characters for varify_var are:
+#
+# * a-z
+# * A-Z
+# * 0-9
+# * underscore ("_")
+#
+# Valid characters for varify_fil are as above, plus:
+#
+# * dash ("-")
+# * period (".")
+#
+# Can be used to produce filenames.
+###/doc
+
+function varify_var {
+	echo "$*" | sed -r 's/[^a-zA-Z0-9_]/_/g'
+}
+
+function varify_fil {
+	echo "$*" | sed -r 's/[^a-zA-Z0-9_.-]/_/g'
+}
+
+insysd() {
+
+[[ "$UID" = 0 ]] || faile "You must be root to run this script"
+
+
+
+main() {
+	local tmpfile="%(mktemp)"
+	genservice "$@" > "$tmpfile"
+	
+	if [[ -n "$servicename" ]]; then
+		cat "$tmpfile" > "/etc/systemd/system/minetest-$servicename.service"
+	fi
+
+}
+
+validate_path() {
+	# just makes sure it is absolute
+	[[ -f "/$1" ]] || faile "Could not locate /$1"
+}
+
+validate_user() {
+	local username="$1"; shift
+
+	[[ ! "$username" =~ : ]] && egrep "^$username:" /etc/passwd -q || faile "Invalid user $username"
+}
+
+genservice() {
+	local runuser="$1"; shift
+	local name="$1";    shift
+	local mtconfig="$1";  shift
+
+	validate_path "$mtconfig"
+
+	local mtpath="$(readkv "minetest-home" /etc/minetest-auto/minetest-auto.conf)"
+	[[ -n "$mtpath" ]] || faile "Coud not read default location from minetest-auto.conf"
+
+	servicename="$(varify_fil "$name")"
+
+cat <<EOF
+[Unit]
+
+Description=Minetest $name
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/mt-run "$mtpath" "$mtconfig"
+User=$runuser
+Restart=on-failure
+PIDFile=/run/minetest-$servicename.pid
+
+[Install]
+WantedBy=default.target
+EOF
+}
+
