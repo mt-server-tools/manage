@@ -9,5 +9,8 @@ sdir="$(dirname "$0")"
 
 apt-get update && apt-get install git ca-certificates
 
+echo "Setting up logrotate files ..."
 cp "$sdir/pkg/etc/logrotate.d/"* / -rvi
+
+echo "Installing mt-manage ..."
 cp "$sdir/pkg/usr/local/bin/"* / -rv
