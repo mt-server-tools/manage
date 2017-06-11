@@ -66,14 +66,32 @@ get_procunm() {
 	echo "$procnum"
 }
 
+setup_main_environment() {
+	MT_MAIN_DIR=/var/minetest-auto
+	MT_confd=/etc/minetest-auto
+	MT_conff="$MT_MAIN_CONF_F/minetest-auto.conf"
+
+
+	mkdir -p "$MT_MAIN_DIR"
+
+	mkdir -p "$MT_conf"
+	[[ -f "$MT_conff" ]] || touch "$MT_conff"
+
+	ensureline "$MT_conff" "minetest-home" "$MT_MAIN_DIR"
+}
+
 main() {
+
+	setup_main_environment
+	cd "$MT_MAIN_DIR"
+
 	package_install
 
 	{
-	gclone https://github.com/minetest/minetest minetest
-	gclone https://github.com/minetest/minetest_game minetest/games/minetest_game
+		gclone https://github.com/minetest/minetest minetest
+		gclone https://github.com/minetest/minetest_game minetest/games/minetest_game
 
-	cd minetest
+		cd minetest
 	} || faile "Synchronization of Minetest failed !"
 
 	local cmakeargs=( $(get_cmake_args "$@") )
