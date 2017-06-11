@@ -3,7 +3,7 @@
 ### Minetest Service Runner Usage:help
 # Run a minetest instance from systemd
 #
-#	mt-run MINETEST_DIRECTORY [loop]
+#	mt-run MINETEST_DIRECTORY [MINETEST_CONF] [loop]
 #
 # Specify the "loop" option to use the built-in looping manager - do not use this with a daemonizer.
 #
@@ -12,13 +12,19 @@
 #%include notest.sh bashout.sh colours.sh version.sh autohelp.sh
 
 parse_args() {
-	MT_DIR="$1"; shift
+	local mt_location="$1"; shift
+
+	MT_DIR="$mt_location"
+	MT_CONF="$MT_DIR/minetest.conf"
+
+	[[ "${1:-}" =~ .conf$ ]] && {
+		MT_CONF="$1"; shift
+	} || :
 
 	MT_LOOP=false
-	[[ "$1" = loop ]] && { MT_LOOP=true; shift; }
+	[[ "${1:-}" = loop ]] && { MT_LOOP=true; shift; }
 
-	# These are just defaults. Can be overridden by conf file
-	MT_CONF="$MT_DIR/minetest.conf"
+	[[ -f "$MT_CONF" ]] || faile "No configuration $MT_CONF !"
 }
 
 readconf() {
@@ -40,10 +46,15 @@ load_conf() {
 }
 
 runmt() {
-	local logdir="$MT_DIR/$(dirname "$MT_LOG")"
+	local logfile="$MT_DIR/$MT_LOG"
+	local logdir="$(dirname "$logfile")"
+
 	[[ -d "$logdir" ]] || mkdir -p "$logdir"
 
-	"MT_DIR/$MT_BIN" --logfile "$MT_DIR/$MT_LOG"
+	local mtbin="$MT_DIR/$MT_BIN"
+	[[ -f "$mtbin" ]] && "$mtbin" --logfile "$logfile" || {
+		faile "Could not run $mtbin"
+	}
 }
 
 runloop() {
@@ -55,11 +66,12 @@ runloop() {
 		local d2=$(date "+%s")
 		local ds=$(date "+%F%T"|sed -r 's/[^0-9]+/-/g')
 		
-		local logdir="$MT_DIR/$(dirname "$MT_LOG")"
+		local logfile="$MT_DIR/$MT_LOG"
+		local logdir="$(dirname "$logfile")"
 		local savelog="$logdir/minetest-${ds}.log"
 
 		# Save the log instance
-		mv "$MT_DIR/$MT_LOG" "$savelog"
+		mv "$logfile" "$savelog"
 		gzip "$savelog"
 		savelog="$savelog.gz"
 
@@ -68,10 +80,12 @@ runloop() {
 		# Failed too soon
 		if [[ "$(( $d2 - $d1 ))" -lt "$MTL_FAILTIME" ]]; then
 			warne "RESTARTED TOO FAST - waiting $MTL_FAILPAUSE seconds"
+
 			if [[ -n "$MTR_ADMINEMAIL" ]]; then
 				# do not quote admin email - could be several addresses
 				zcat "$savelog"|tail -n "$MTR_TAIL" | mail -s "Minetest server failure [$SERVERNAME]" $MTR_ADMINEMAIL
 			fi
+
 			sleep "$MTL_PAUSE" || faile "FAILED SLEEP - aborting" 
 
 		# Failed after a while, or not a failure - we don't care at this point
