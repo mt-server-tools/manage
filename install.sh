@@ -9,4 +9,5 @@ sdir="$(dirname "$0")"
 
 apt-get update && apt-get install git ca-certificates
 
-cp "$sdir/pkg/"* / -rv
+cp "$sdir/pkg/etc/logrotate.d/"* / -rvn
+cp "$sdir/pkg/usr/local/bin/"* / -rv
