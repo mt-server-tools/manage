@@ -17,7 +17,7 @@
 # 	the path to the minetest config file
 ###/doc
 
-#%include verison.sh autohelp.sh varify.sh
+#%include version.sh autohelp.sh varify.sh
 
 insysd() {
 
