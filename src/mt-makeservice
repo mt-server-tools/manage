@@ -2,18 +2,19 @@
 
 ### Create Minetest Service MTDIR Usage:help
 # Install a systemd service for the specified minetest directory
-# Assumes the directory contains its own minetest.conf file
 #
-#	 mt-makeservice USER MT_NAME MT_PATH
+#	 mt-makeservice USER SERVICE_NAME MTCONFIG_PATH
+#
+# Uses the main minetest server as configured in /etc/minetest-auto/minetest-auto.conf
 #
 # USER
 # 	the user the service will run as
 #
-# MT_NAME
+# SERVICE_NAME
 # 	the name of the service
 #
-# MT_PATH
-# 	the path to the minetest folder
+# MTCONFIG_PATH
+# 	the path to the minetest config file
 ###/doc
 
 #%include verison.sh autohelp.sh varify.sh
@@ -25,12 +26,18 @@ insysd() {
 
 
 main() {
-	genservice "$@" > /etc/systemd/system/minetest-$iam.service
+	local tmpfile="%(mktemp)"
+	genservice "$@" > "$tmpfile"
+	
+	if [[ -n "$servicename" ]]; then
+		cat "$tmpfile" > "/etc/systemd/system/minetest-$servicename.service"
+	fi
 
 }
 
 validate_path() {
-	[[ -f "/$1/minetest.conf" ]] || faile "Could not locate /$1/minetest.conf"
+	# just makes sure it is absolute
+	[[ -f "/$1" ]] || faile "Could not locate /$1"
 }
 
 validate_user() {
@@ -42,11 +49,14 @@ validate_user() {
 genservice() {
 	local runuser="$1"; shift
 	local name="$1";    shift
-	local mtpath="$1";  shift
+	local mtconfig="$1";  shift
 
-	validate_path "$mtpath"
+	validate_path "$mtconfig"
 
-	local servicename="$(varify_fil "$name")"
+	local mtpath="$(readkv "minetest-home" /etc/minetest-auto/minetest-auto.conf)"
+	[[ -n "$mtpath" ]] || faile "Coud not read default location from minetest-auto.conf"
+
+	servicename="$(varify_fil "$name")"
 
 cat <<EOF
 [Unit]
@@ -55,7 +65,7 @@ Description=Minetest $name
 After=network.target
 
 [Service]
-ExecStart=/usr/local/bin/mt-run $mtpath
+ExecStart=/usr/local/bin/mt-run "$mtpath" "$mtconfig"
 User=$runuser
 Restart=on-failure
 PIDFile=/run/minetest-$servicename.pid
