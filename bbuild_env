@@ -1,3 +1,4 @@
 BUILDOUTD=pkg/usr/local/bin/
+BBFILES=(src/*)
 BBPATH="$BBPATH:./"
 
