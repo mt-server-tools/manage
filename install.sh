@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [[ "$UID != 0 ]]; then
-	echo "[1;31mYou are not root[0m"
+if [[ "$UID" != 0 ]]; then
+	echo "[1;31mYou need to be root to run this script[0m"
 	exit 1
 fi
 

@@ -1,0 +1,4 @@
+1	%13		refactor install script, run it during main install
+2	%5		ensure new mt instances run in individual user accounts
+3	%5		when setting up new minetest, configure db immediately for leveldb
+4	%20		move mods installer to independent repoisotry
