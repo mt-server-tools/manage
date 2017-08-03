@@ -1,0 +1,83 @@
+#!/bin/bash
+
+### Minetest super-installer Usage:help
+# Installs the latest minetest either from PPA or from GitHub
+#
+# Usage:
+#
+# 	install-minetest [-type {ppa | git} ]
+#
+# If you opt to install minetest from the PPA, you will need to run `minetest --server` to use the server mode.
+#
+# If you opt to install minetest from github, this tool will install the build dependency packages, and build the latest minetest.
+# It will be available at /var/build/minetest/bin/minetestserver
+#
+###/doc
+
+#%include autohelp.sh getbin.sh
+#%include colours.sh bashout.sh askuser.sh
+
+#%include scriptutils.sh
+#%include rebuild.sh
+
+set -euo pipefail
+
+
+setup_ppa() {
+	(ls /etc/apt/sources.list.d | grep minetestdevs -q) && return || :
+
+	add-apt-repository ppa:minetestdevs/stable
+}
+
+install_minetest_system() {
+	setup_ppa
+
+	apt-get update || faile "APT Update failed"
+	
+	apt-get install minetest -y
+}
+
+install_minetest_git() {
+	# User-specified number of CPUs to use during build
+	local cpuspec="$(getarg -cpus)"
+	[[ -z "$cpuspec" ]] && cpuspec="$BUILD_CPUS" || :
+	[[ "$cpuspec" =~ ^[0-9]+$ ]] || {
+		faile "Invalid CPU count specified: [$cpuspec]"
+	}
+	BUILD_CPUS="$cpuspec"
+
+	has_bin git || {
+		apt-get update
+		apt-get install git ca-certificates -y
+	}
+
+	mkdir -p /var/build/ # Make sure we are unlikely to interfere with other /var installs
+	cd /var/build
+
+	[[ ! -d minetest ]] && git clone "https://github.com/minetest/minetest" || :
+
+	cd minetest
+
+	rebuild_minetest
+
+	infoe "Minetest is now installed at $PWD/bin/minetestserver"
+}
+
+main() {
+	local build_type="$(getarg -type)"
+	[[ -z "$build_type" ]] && build_type=ppa || :
+
+	case "$build_type" in
+	ppa)
+		install_minetest_system "$@"
+		;;
+	git)
+		install_minetest_git "$@"
+		;;
+	*)
+		faile "Unknown build mode"
+		;;
+	esac
+}
+
+main "$@"
