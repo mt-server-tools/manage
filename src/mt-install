@@ -5,7 +5,7 @@
 #
 # Usage:
 #
-# 	install-minetest [-type {ppa | git} ]
+# 	mt-install [-type {ppa | git} ]
 #
 # If you opt to install minetest from the PPA, you will need to run `minetest --server` to use the server mode.
 #
@@ -64,6 +64,8 @@ install_minetest_git() {
 }
 
 main() {
+	has_bin add-apt-repository || faile "This script requires APT repository management support."
+
 	local build_type="$(getarg -type)"
 	[[ -z "$build_type" ]] && build_type=ppa || :
 
