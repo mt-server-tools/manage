@@ -1,9 +1,0 @@
-#!/bin/bash
-
-# Define initial gives
-
-if [[ "${EDITOR+x}" = x ]]; then
-	"$EDITOR" /usr/share/games/minetest/games/minetest_game/mods/give_initial_stuff/init.lua
-else
-	nano /usr/share/games/minetest/games/minetest_game/mods/give_initial_stuff/init.lua
-fi
